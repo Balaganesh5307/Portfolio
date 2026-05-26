@@ -10,9 +10,19 @@
         content="Portfolio of Balaganesh P, an AI & Data Science student skilled in full-stack development.">
     <link rel="stylesheet" href="styles.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/lenis@1.1.13/dist/lenis.css">
 </head>
 
 <body>
+    <div class="custom-cursor"></div>
+    <div class="custom-cursor-dot"></div>
+    <div class="scroll-progress-bar"></div>
+    <div class="loader-wrapper">
+        <div class="loader-logo">BG</div>
+        <div class="loader-bar">
+            <div class="loader-progress"></div>
+        </div>
+    </div>
     <div class="app">
 
         <header class="header">
@@ -65,6 +75,8 @@
         <main>
 
             <section class="hero">
+                <canvas id="hero-particles"></canvas>
+                <div class="hero-glow"></div>
                 <div class="container">
                     <div class="hero-content">
                         <div class="hero-badge">
@@ -72,13 +84,13 @@
                             <span class="hero-badge-text">Open to Opportunities</span>
                         </div>
 
-                        <h1 class="hero-name">
+                        <h1 class="hero-name reveal-name">
                             Balaganesh <span class="hero-name-highlight">P</span>
                         </h1>
 
                         <p class="hero-title">
                             <span class="hero-title-divider"></span>
-                            AI & Data Science Student
+                            <span class="typed-role">AI & Data Science Student</span>
                         </p>
 
                         <p class="hero-summary">Analytical B.Tech student in AI and Data Science with strong proficiency
@@ -340,6 +352,7 @@
                     </div>
                     <div class="projects-grid">
                         <div class="project-card">
+                            <div class="project-glare"></div>
                             <span class="project-number">01</span>
                             <div class="project-header">
                                 <h3 class="project-title">Billonix</h3>
@@ -375,6 +388,7 @@
                             </div>
                         </div>
                         <div class="project-card">
+                            <div class="project-glare"></div>
                             <span class="project-number">02</span>
                             <div class="project-header">
                                 <h3 class="project-title">Art Heaven</h3>
@@ -411,6 +425,7 @@
                             </div>
                         </div>
                         <div class="project-card">
+                            <div class="project-glare"></div>
                             <span class="project-number">03</span>
                             <div class="project-header">
                                 <h3 class="project-title">Finance Tracker</h3>
@@ -446,6 +461,7 @@
                             </div>
                         </div>
                         <div class="project-card">
+                            <div class="project-glare"></div>
                             <span class="project-number">04</span>
                             <div class="project-header">
                                 <h3 class="project-title">Currency Convertor</h3>
@@ -481,6 +497,7 @@
                             </div>
                         </div>
                         <div class="project-card">
+                            <div class="project-glare"></div>
                             <span class="project-number">05</span>
                             <div class="project-header">
                                 <h3 class="project-title">Up Skill</h3>
@@ -517,6 +534,7 @@
                             </div>
                         </div>
                         <div class="project-card">
+                            <div class="project-glare"></div>
                             <span class="project-number">06</span>
                             <div class="project-header">
                                 <h3 class="project-title">RealCheck</h3>
@@ -564,6 +582,8 @@
                         <p class="section-subtitle">My academic journey</p>
                     </div>
                     <div class="education-timeline">
+                        <div class="education-timeline-fill"></div>
+                        <div class="timeline-spark"></div>
                         <div class="education-item">
                             <span class="education-date">2024 - 2028</span>
                             <h3 class="education-degree">B.Tech - Artificial Intelligence and Data Science</h3>
@@ -602,154 +622,216 @@
                         <h2 class="section-title">Certifications</h2>
                         <p class="section-subtitle">Professional credentials and courses</p>
                     </div>
-                    <div class="certifications-grid">
-                        <div class="certification-card" data-image="./Images/Artificial Intelligence Essentials.png">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Artificial Intelligence Essentials</h4>
-                                <p class="certification-issuer">Coursera</p>
-                            </div>
+                    
+                    <!-- Premium 3D Coverflow Certificate Slider -->
+                    <div class="coverflow-container">
+                        <!-- Background Effects -->
+                        <div class="coverflow-bg-effects">
+                            <div class="floating-blob blob-1"></div>
+                            <div class="floating-blob blob-2"></div>
+                            <div class="floating-blob blob-3"></div>
                         </div>
-                        <div class="certification-card" data-image="./Images/Automation and Scripting with Python.png">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Automation and Scripting with Python</h4>
-                                <p class="certification-issuer">Coursera</p>
-                            </div>
+                        
+                        <!-- Floating Particles -->
+                        <div class="floating-particles">
+                            <div class="particle"></div>
+                            <div class="particle"></div>
+                            <div class="particle"></div>
+                            <div class="particle"></div>
+                            <div class="particle"></div>
                         </div>
-                        <div class="certification-card"
-                            data-image="./Images/Responsive Website Basics - Code with HTML, CSS, and JavaScript.png">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Responsive Website Basics</h4>
-                                <p class="certification-issuer">Coursera</p>
+                        
+                        <!-- Navigation Buttons -->
+                        <button class="coverflow-nav-btn coverflow-prev" id="prevBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="15,18 9,12 15,6"></polyline>
+                            </svg>
+                        </button>
+                        
+                        <button class="coverflow-nav-btn coverflow-next" id="nextBtn">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9,18 15,12 9,6"></polyline>
+                            </svg>
+                        </button>
+                        
+                        <!-- Certificate Slider -->
+                        <div class="coverflow-slider" id="coverflowSlider">
+                            <div class="certificate-card-3d" data-image="./Images/Artificial Intelligence Essentials.png">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Artificial Intelligence Essentials</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">Coursera</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="certification-card" data-image="./Images/Programming in Python.png">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Programming in Python</h4>
-                                <p class="certification-issuer">Coursera</p>
+                            
+                            <div class="certificate-card-3d" data-image="./Images/Automation and Scripting with Python.png">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Automation and Scripting with Python</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">Coursera</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="certification-card"
-                            data-image="./Images/Introduction to Back - End Development.png">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Introduction to Back-End Development</h4>
-                                <p class="certification-issuer">Coursera</p>
+                            
+                            <div class="certificate-card-3d" data-image="./Images/Responsive Website Basics - Code with HTML, CSS, and JavaScript.png">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="3" width="20" height="14" rx="2" ry="2"></rect>
+                                        <line x1="8" y1="21" x2="16" y2="21"></line>
+                                        <line x1="12" y1="17" x2="12" y2="21"></line>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Responsive Website Basics</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">Coursera</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="certification-card"
-                            data-image="./Images/Data Analysis and Visualization with Python.png">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Data Analysis and Visualization with Python</h4>
-                                <p class="certification-issuer">Coursera</p>
+                            
+                            <div class="certificate-card-3d" data-image="./Images/Programming in Python.png">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Programming in Python</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">Coursera</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="certification-card" data-image="./Images/Python Programming Fundamentals.png">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Python Programming Fundamentals</h4>
-                                <p class="certification-issuer">Coursera</p>
+                            
+                            <div class="certificate-card-3d" data-image="./Images/Introduction to Back - End Development.png">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                                        <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Introduction to Back-End Development</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">Coursera</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="certification-card" data-image="./Images/Web Development in Python.png">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Web Development in Python</h4>
-                                <p class="certification-issuer">Coursera</p>
+                            
+                            <div class="certificate-card-3d" data-image="./Images/Data Analysis and Visualization with Python.png">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Data Analysis and Visualization with Python</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">Coursera</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="certification-card"
-                            data-image="./Images/Advanced Diploma in Computer Application (ADCA).jpg">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Advanced Diploma in Computer Application (ADCA)</h4>
-                                <p class="certification-issuer">CSC</p>
+                            
+                            <div class="certificate-card-3d" data-image="./Images/Python Programming Fundamentals.png">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Python Programming Fundamentals</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">Coursera</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="certification-card" data-image="./Images/Master Generative AI & Tools.jpg">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Master Generative AI & Generative AI Tools</h4>
-                                <p class="certification-issuer">Infosys Springboard</p>
+                            
+                            <div class="certificate-card-3d" data-image="./Images/Web Development in Python.png">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"></path>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Web Development in Python</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">Coursera</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="certification-card" data-image="./Images/Introduction to Mongodb.png">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Introduction to MongoDB</h4>
-                                <p class="certification-issuer">Coursera</p>
+                            
+                            <div class="certificate-card-3d" data-image="./Images/Advanced Diploma in Computer Application (ADCA).jpg">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M22 10v6M2 10l10-5 10 5-10 5z"></path>
+                                        <path d="M6 12v5c3 3 9 3 12 0v-5"></path>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Advanced Diploma in Computer Application (ADCA)</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">CSC</span>
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                        <div class="certification-card"
-                            data-image="./Images/Introduction to Data Engineering and BigData.jpg">
-                            <div class="certification-icon"><svg xmlns="http://www.w3.org/2000/svg" width="24"
-                                    height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
-                                    stroke-linecap="round" stroke-linejoin="round">
-                                    <circle cx="12" cy="8" r="7"></circle>
-                                    <polyline points="8.21 13.89 7 23 12 20 17 23 15.79 13.88"></polyline>
-                                </svg></div>
-                            <div class="certification-content">
-                                <h4 class="certification-name">Introduction to Data Engineering and BigData</h4>
-                                <p class="certification-issuer">Coursera</p>
+                            
+                            <div class="certificate-card-3d" data-image="./Images/Master Generative AI & Tools.jpg">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Master Generative AI & Generative AI Tools</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">Infosys Springboard</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="certificate-card-3d" data-image="./Images/Introduction to Mongodb.png">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M20.24 12.24a6 6 0 0 0-8.49-8.49L5 10.5V19h8.5z"></path>
+                                        <line x1="16" y1="8" x2="2" y2="22"></line>
+                                        <line x1="17.5" y1="15" x2="9" y2="15"></line>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Introduction to MongoDB</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">Coursera</span>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="certificate-card-3d" data-image="./Images/Introduction to Data Engineering and BigData.jpg">
+                                <div class="certificate-icon-3d">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                        <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                                        <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                                        <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                                    </svg>
+                                </div>
+                                <div class="certificate-content-3d">
+                                    <h4 class="certificate-title-3d">Introduction to Data Engineering and BigData</h4>
+                                    <div class="certificate-provider-3d">
+                                        <span class="provider-badge-3d">Coursera</span>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -858,6 +940,8 @@
 
 
             <section id="contact" class="section">
+                <div class="contact-blob blob-1"></div>
+                <div class="contact-blob blob-2"></div>
                 <div class="container">
                     <div class="contact-grid">
                         <div class="contact-info">
@@ -1007,6 +1091,10 @@
         <div id="caption"></div>
     </div>
 
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/TextPlugin.min.js"></script>
+    <script src="https://unpkg.com/lenis@1.1.13/dist/lenis.min.js"></script>
     <script src="script.js"></script>
 </body>
 
