@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (canvas && !isMobile) {
         const ctx = canvas.getContext('2d');
         let particles = [];
-        let mouse = { x: null, y: null, radius: 100 };
+        let mouse = { x: null, y: null, radius: 140 }; // Increased radius for better gravitational influence
 
         function resizeCanvas() {
             canvas.width = hero.offsetWidth;
@@ -223,10 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
             constructor() {
                 this.x = Math.random() * canvas.width;
                 this.y = Math.random() * canvas.height;
-                this.size = Math.random() * 2 + 1;
-                this.baseX = this.x;
-                this.baseY = this.y;
-                this.density = (Math.random() * 30) + 1;
+                this.size = Math.random() * 2 + 1.2;
                 this.vx = (Math.random() * 0.4) - 0.2;
                 this.vy = (Math.random() * 0.4) - 0.2;
                 this.color = 'rgba(99, 102, 241, 0.4)';
@@ -249,7 +246,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (this.x < 0 || this.x > canvas.width) this.vx = -this.vx;
                 if (this.y < 0 || this.y > canvas.height) this.vy = -this.vy;
 
-                // Mouse interaction
+                // Neural-Mesh Gravitation Attraction towards Cursor
                 if (mouse.x !== null) {
                     let dx = mouse.x - this.x;
                     let dy = mouse.y - this.y;
@@ -258,8 +255,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         let force = (mouse.radius - distance) / mouse.radius;
                         let directionX = dx / distance;
                         let directionY = dy / distance;
-                        this.x -= directionX * force * 1.5;
-                        this.y -= directionY * force * 1.5;
+                        
+                        // Pull particles gently towards cursor
+                        this.x += directionX * force * 1.6;
+                        this.y += directionY * force * 1.6;
                     }
                 }
             }
@@ -267,8 +266,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
         function initParticles() {
             particles = [];
-            const particleCount = Math.floor((canvas.width * canvas.height) / 18000);
-            for (let i = 0; i < Math.min(particleCount, 120); i++) {
+            const particleCount = Math.floor((canvas.width * canvas.height) / 16000);
+            for (let i = 0; i < Math.min(particleCount, 130); i++) {
                 particles.push(new Particle());
             }
         }
@@ -286,10 +285,25 @@ document.addEventListener('DOMContentLoaded', () => {
                     const dy = particles[i].y - particles[j].y;
                     const dist = Math.sqrt(dx * dx + dy * dy);
 
-                    if (dist < 110) {
-                        const alpha = (110 - dist) / 110 * 0.15;
-                        ctx.strokeStyle = `rgba(99, 102, 241, ${alpha})`;
-                        ctx.lineWidth = 1;
+                    if (dist < 115) {
+                        let alpha = (115 - dist) / 115 * 0.18;
+                        let nearMouse = false;
+                        
+                        // Synaptic amplification near cursor
+                        if (mouse.x !== null) {
+                            let midX = (particles[i].x + particles[j].x) / 2;
+                            let midY = (particles[i].y + particles[j].y) / 2;
+                            let mDx = mouse.x - midX;
+                            let mDy = mouse.y - midY;
+                            let mDist = Math.sqrt(mDx * mDx + mDy * mDy);
+                            if (mDist < 130) {
+                                nearMouse = true;
+                                alpha = alpha * (2.2 - (mDist / 130)); // Brighten connections closer to cursor
+                            }
+                        }
+
+                        ctx.strokeStyle = nearMouse ? `rgba(99, 102, 241, ${alpha * 1.5})` : `rgba(99, 102, 241, ${alpha})`;
+                        ctx.lineWidth = nearMouse ? 1.6 : 1;
                         ctx.beginPath();
                         ctx.moveTo(particles[i].x, particles[i].y);
                         ctx.lineTo(particles[j].x, particles[j].y);
@@ -599,15 +613,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
         // Activate timeline items
         timelineItems.forEach(item => {
-            gsap.to(item, {
-                scrollTrigger: {
-                    trigger: item,
-                    start: 'top 55%',
-                    end: 'bottom 45%',
-                    onEnter: () => item.classList.add('active'),
-                    onLeaveBack: () => item.classList.remove('active'),
-                    toggleActions: 'play none none reverse'
-                }
+            ScrollTrigger.create({
+                trigger: item,
+                start: 'top 55%',
+                end: 'bottom 45%',
+                onEnter: () => item.classList.add('active'),
+                onLeaveBack: () => item.classList.remove('active')
             });
         });
     }
@@ -826,43 +837,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 2000);
 
     // --------------------------------------------------------------------------
-    // 16. LEGACY CERTIFICATIONS HOVER ELEVATION (Preserved)
+    // 16. LEGACY CERTIFICATIONS HOVER ELEVATION (Preserved Safely)
     // --------------------------------------------------------------------------
-    gsap.from('.certification-card', {
-        y: 40,
-        opacity: 0,
-        duration: 0.8,
-        stagger: 0.1,
-        ease: 'power3.out',
-        scrollTrigger: {
-            trigger: '#certifications',
-            start: 'top 80%'
+    const legacyCertCards = document.querySelectorAll('.certification-card');
+    if (legacyCertCards.length > 0) {
+        gsap.from(legacyCertCards, {
+            y: 40,
+            opacity: 0,
+            duration: 0.8,
+            stagger: 0.1,
+            ease: 'power3.out',
+            scrollTrigger: {
+                trigger: '#certifications',
+                start: 'top 80%'
+            }
+        });
+    }
+
+    // --------------------------------------------------------------------------
+    // 17. CONTACT BUTTONS AND DRIFTING BLOBS (Preserved Safely)
+    // --------------------------------------------------------------------------
+    // Blob movement - Target specifically to avoid missing targets or wrong selection
+    if (document.querySelectorAll('.contact-blob').length > 0 && !isMobile) {
+        const contactBlob1 = document.querySelector('.contact-blob.blob-1');
+        if (contactBlob1) {
+            gsap.to(contactBlob1, {
+                x: 'random(-50, 50)',
+                y: 'random(-50, 50)',
+                duration: 8,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut'
+            });
         }
-    });
 
-    // --------------------------------------------------------------------------
-    // 17. CONTACT BUTTONS AND DRIFTING BLOBS
-    // --------------------------------------------------------------------------
-    // Blob movement
-    const blobs = document.querySelectorAll('.contact-blob');
-    if (blobs.length > 0 && !isMobile) {
-        gsap.to('.blob-1', {
-            x: 'random(-50, 50)',
-            y: 'random(-50, 50)',
-            duration: 8,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut'
-        });
-
-        gsap.to('.blob-2', {
-            x: 'random(-60, 60)',
-            y: 'random(-60, 60)',
-            duration: 10,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut'
-        });
+        const contactBlob2 = document.querySelector('.contact-blob.blob-2');
+        if (contactBlob2) {
+            gsap.to(contactBlob2, {
+                x: 'random(-60, 60)',
+                y: 'random(-60, 60)',
+                duration: 10,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut'
+            });
+        }
     }
 
     // Contact cards reveal
@@ -913,12 +932,16 @@ document.addEventListener('DOMContentLoaded', () => {
         if (isOpen) {
             menuIcon.style.display = 'none';
             closeIcon.style.display = 'block';
-            gsap.from('.mobile-nav-link', {
+            gsap.fromTo('.mobile-nav-link', {
                 x: -30,
-                opacity: 0,
+                opacity: 0
+            }, {
+                x: 0,
+                opacity: 1,
                 duration: 0.4,
                 stagger: 0.05,
-                ease: 'power2.out'
+                ease: 'power2.out',
+                overwrite: 'auto'
             });
         } else {
             menuIcon.style.display = 'block';
@@ -1028,52 +1051,13 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --------------------------------------------------------------------------
-    // 19. PREMIUM ANIMATIONS ADDITIONS
+    // 19. PREMIUM ANIMATIONS ADDITIONS & UPGRADES
     // --------------------------------------------------------------------------
 
-    // A. Custom Trailing Cursor
-    const cursor = document.querySelector('.custom-cursor');
-    const cursorDot = document.querySelector('.custom-cursor-dot');
-    if (cursor && cursorDot && !isTouchDevice) {
-        // Hide default cursor
-        document.body.style.cursor = 'none';
+    
 
-        // Smoothly follow mouse
-        const xTo = gsap.quickTo(cursor, "x", { duration: 0.2, ease: "power3" });
-        const yTo = gsap.quickTo(cursor, "y", { duration: 0.2, ease: "power3" });
-
-        const dotXTo = gsap.quickTo(cursorDot, "x", { duration: 0.05, ease: "power3" });
-        const dotYTo = gsap.quickTo(cursorDot, "y", { duration: 0.05, ease: "power3" });
-
-        window.addEventListener("mousemove", (e) => {
-            xTo(e.clientX);
-            yTo(e.clientY);
-            dotXTo(e.clientX);
-            dotYTo(e.clientY);
-        });
-
-        // Reveal cursor on first mousemove
-        gsap.set([cursor, cursorDot], { opacity: 0 });
-        window.addEventListener("mousemove", () => {
-            gsap.to([cursor, cursorDot], { opacity: 1, duration: 0.3 });
-        }, { once: true });
-
-        // Hover effects
-        const hoverElements = document.querySelectorAll('a, button, .project-card, .certificate-card-3d, .platform-card, .coverflow-nav-btn');
-        hoverElements.forEach(el => {
-            el.addEventListener('mouseenter', () => {
-                cursor.classList.add('hover');
-                cursorDot.classList.add('hover');
-            });
-            el.addEventListener('mouseleave', () => {
-                cursor.classList.remove('hover');
-                cursorDot.classList.remove('hover');
-            });
-        });
-    }
-
-    // B. Magnetic Buttons
-    const magneticButtons = document.querySelectorAll('.btn-primary, .btn-outline, .coverflow-nav-btn, .social-link');
+    // B. Upgraded Elastic Magnetic Buttons & Links
+    const magneticButtons = document.querySelectorAll('.btn-primary, .btn-outline, .coverflow-nav-btn, .social-link, .nav-link, .project-link, .mobile-menu-btn');
     if (magneticButtons.length > 0 && !isTouchDevice) {
         magneticButtons.forEach(btn => {
             btn.addEventListener('mousemove', (e) => {
@@ -1125,48 +1109,155 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
-    // C. Masked Split Text Section Title Reveal
-    const titles = document.querySelectorAll('.section-title');
-    titles.forEach(title => {
-        const text = title.textContent.trim();
-        title.innerHTML = '';
-        
-        // Split into words
-        const words = text.split(' ');
-        words.forEach((word, wordIdx) => {
-            const wordSpan = document.createElement('span');
-            wordSpan.className = 'reveal-word-mask';
-            
-            // Split into characters
-            const chars = word.split('');
-            chars.forEach(char => {
-                const charSpan = document.createElement('span');
-                charSpan.className = 'reveal-char';
-                charSpan.textContent = char;
-                wordSpan.appendChild(charSpan);
+    // C. Cyber Scramble Text Decode Effect (AI & Data Science Theme)
+    class TextScrambler {
+        constructor(el) {
+            this.el = el;
+            this.chars = '!<>-_\\/[]{}—=+*^?#________01010101';
+            this.update = this.update.bind(this);
+        }
+        setText(newText) {
+            this.oldText = this.el.innerText;
+            this.newText = newText;
+            this.promise = new Promise((resolve) => this.resolve = resolve);
+            this.queue = [];
+            for (let i = 0; i < this.newText.length; i++) {
+                const from = this.oldText[i] || '';
+                const to = this.newText[i] || '';
+                const start = Math.floor(Math.random() * 16);
+                const end = start + Math.floor(Math.random() * 16);
+                this.queue.push({ from, to, start, end });
+            }
+            cancelAnimationFrame(this.frameId);
+            this.frame = 0;
+            this.update();
+            return this.promise;
+        }
+        update() {
+            let output = '';
+            let complete = 0;
+            for (let i = 0, n = this.queue.length; i < n; i++) {
+                let { from, to, start, end, char } = this.queue[i];
+                if (this.frame >= end) {
+                    complete++;
+                    output += to;
+                } else if (this.frame >= start) {
+                    if (!char || Math.random() < 0.28) {
+                        char = this.randomChar();
+                        this.queue[i].char = char;
+                    }
+                    output += `<span style="color: var(--color-accent); text-shadow: 0 0 8px var(--color-accent);">${char}</span>`;
+                } else {
+                    output += from;
+                }
+            }
+            this.el.innerHTML = output;
+            if (complete === this.queue.length) {
+                this.resolve();
+            } else {
+                this.frameId = requestAnimationFrame(this.update);
+                this.frame++;
+            }
+        }
+        randomChar() {
+            return this.chars[Math.floor(Math.random() * this.chars.length)];
+        }
+    }
+
+    // Attach scramble animations
+    const scrambleElements = document.querySelectorAll('.section-title, .hero-name, .logo-badge');
+    scrambleElements.forEach(el => {
+        const scrambler = new TextScrambler(el);
+        const originalText = el.textContent.trim();
+        let isScrambling = false;
+
+        const triggerScramble = () => {
+            if (isScrambling) return;
+            isScrambling = true;
+            scrambler.setText(originalText).then(() => {
+                isScrambling = false;
             });
-            
-            title.appendChild(wordSpan);
-            
-            // Add space between words
-            if (wordIdx < words.length - 1) {
-                const space = document.createTextNode(' ');
-                title.appendChild(space);
-            }
-        });
-        
-        // Animate characters on ScrollTrigger
-        gsap.from(title.querySelectorAll('.reveal-char'), {
-            y: '100%',
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.03,
-            ease: 'power4.out',
-            scrollTrigger: {
-                trigger: title,
-                start: 'top 85%',
-                once: true
-            }
+        };
+
+        // Scramble on hover
+        el.addEventListener('mouseenter', triggerScramble);
+
+        // Scramble once on viewport entrance via ScrollTrigger
+        ScrollTrigger.create({
+            trigger: el,
+            start: 'top 85%',
+            once: true,
+            onEnter: triggerScramble
         });
     });
+
+    // D. Liquid Morphing Blobs with Scroll Velocity Response
+    if (lenis && !isMobile) {
+        const morphBlobs = document.querySelectorAll('.floating-blob, .contact-blob, .hero-glow');
+        lenis.on('scroll', () => {
+            const velocity = Math.abs(lenis.velocity);
+            const stretch = Math.min(1 + velocity * 0.0003, 1.25);
+            const squash = Math.max(1 - velocity * 0.00015, 0.8);
+            
+            morphBlobs.forEach(blob => {
+                gsap.to(blob, {
+                    scaleY: stretch,
+                    scaleX: squash,
+                    duration: 0.4,
+                    overwrite: "auto",
+                    ease: "power2.out"
+                });
+            });
+        });
+    }
+
+    // E. 3D Bento-Box Grid Parallax & Mouse Shift
+    if (lenis && !isMobile) {
+        const grids = document.querySelectorAll('.projects-grid, .skills-simple-grid');
+        grids.forEach(grid => {
+            gsap.set(grid, { transformPerspective: 1200, transformStyle: "preserve-3d" });
+            
+            ScrollTrigger.create({
+                trigger: grid,
+                start: "top bottom",
+                end: "bottom top",
+                onUpdate: (self) => {
+                    const velocity = self.getVelocity() || 0;
+                    const rotationX = gsap.utils.clamp(-6, 6, velocity * -0.003);
+                    
+                    gsap.to(grid, {
+                        rotateX: rotationX,
+                        duration: 0.6,
+                        ease: "power2.out",
+                        overwrite: "auto"
+                    });
+                }
+            });
+            
+            // Add grid mouse parallax
+            grid.addEventListener('mousemove', (e) => {
+                const rect = grid.getBoundingClientRect();
+                const x = (e.clientX - rect.left) / rect.width - 0.5;
+                const y = (e.clientY - rect.top) / rect.height - 0.5;
+                
+                gsap.to(grid, {
+                    rotateY: x * 5,
+                    rotateX: -y * 5,
+                    duration: 0.8,
+                    ease: "power2.out",
+                    overwrite: "auto"
+                });
+            });
+            
+            grid.addEventListener('mouseleave', () => {
+                gsap.to(grid, {
+                    rotateY: 0,
+                    rotateX: 0,
+                    duration: 1,
+                    ease: "power2.out",
+                    overwrite: "auto"
+                });
+            });
+        });
+    }
 });
