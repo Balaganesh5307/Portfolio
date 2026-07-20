@@ -79,6 +79,8 @@
 html {
     scroll-behavior: smooth;
     font-size: 16px;
+    overflow-x: hidden;
+    width: 100%;
 }
 
 body {
@@ -90,7 +92,10 @@ body {
     background-color: var(--color-bg-primary);
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+    overflow-x: hidden;
+    width: 100%;
 }
+
 
 
 h1,
@@ -1520,7 +1525,6 @@ ol {
 
 .education-item::before {
     left: -1.4rem;
-
 }
 
 
@@ -1561,6 +1565,177 @@ ol {
     border-radius: 4px;
 }
 
+
+/* ========================================
+   WORK EXPERIENCE TIMELINE
+   ======================================== */
+
+.experience-timeline {
+    position: relative;
+    padding-left: var(--spacing-3xl);
+}
+
+.experience-timeline::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: linear-gradient(to bottom, var(--color-accent), var(--color-border-light));
+}
+
+.experience-timeline-fill {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 2px;
+    height: 0%;
+    background: var(--color-gradient-1);
+    z-index: 1;
+    transition: height 0.1s linear;
+}
+
+@media (max-width: 768px) {
+    .experience-timeline-fill {
+        left: 6px;
+    }
+}
+
+.experience-item {
+    position: relative;
+    padding-bottom: var(--spacing-2xl);
+    padding-left: 2rem;
+    margin-left: 1rem;
+    transition: transform 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.experience-item:last-child {
+    padding-bottom: 0;
+}
+
+.experience-item::before {
+    content: '';
+    position: absolute;
+    left: -1.4rem;
+    top: 6px;
+    width: 14px;
+    height: 14px;
+    background: var(--color-gradient-1);
+    border: 3px solid var(--color-bg-primary);
+    border-radius: 50%;
+    box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
+    transition: all 0.3s;
+    z-index: 2;
+}
+
+.experience-item:hover::before,
+.experience-item.active::before {
+    transform: scale(1.3);
+    box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.15);
+}
+
+.experience-date {
+    display: inline-block;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    color: white;
+    background: var(--color-gradient-1);
+    padding: 6px 16px;
+    margin-bottom: var(--spacing-sm);
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-radius: 20px;
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.experience-card {
+    background-color: var(--color-bg-card);
+    border: 1px solid var(--color-border);
+    padding: var(--spacing-xl) var(--spacing-2xl);
+    border-radius: 12px;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.experience-card:hover {
+    border-color: rgba(99, 102, 241, 0.2);
+    box-shadow: 0 10px 30px rgba(99, 102, 241, 0.08);
+    transform: translateY(-2px);
+}
+
+.experience-role {
+    font-size: var(--font-size-lg);
+    font-weight: var(--font-weight-semibold);
+    color: var(--color-text-primary);
+    margin-bottom: var(--spacing-xs);
+}
+
+.experience-company {
+    font-size: var(--font-size-base);
+    color: var(--color-accent);
+    font-weight: var(--font-weight-medium);
+    margin-bottom: var(--spacing-sm);
+}
+
+.experience-description {
+    font-size: var(--font-size-sm);
+    color: var(--color-text-secondary);
+    line-height: 1.8;
+    white-space: pre-line;
+}
+
+.experience-spark {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 8px;
+    height: 8px;
+    background: var(--color-accent);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    box-shadow: 0 0 10px var(--color-accent), 0 0 20px var(--color-accent);
+    z-index: 2;
+    opacity: 0;
+    pointer-events: none;
+}
+
+@media (max-width: 768px) {
+    .experience-spark {
+        left: 6px;
+    }
+}
+
+.experience-card-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-md);
+    margin-bottom: var(--spacing-sm);
+}
+
+.experience-cert-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 600;
+    background: linear-gradient(135deg, rgba(99, 102, 241, 0.15), rgba(99, 102, 241, 0.05));
+    color: var(--color-accent);
+    border: 1px solid rgba(99, 102, 241, 0.3);
+    text-decoration: none;
+    white-space: nowrap;
+    transition: background 0.2s, border-color 0.2s, transform 0.2s;
+    flex-shrink: 0;
+}
+
+.experience-cert-badge:hover {
+    background: rgba(99, 102, 241, 0.25);
+    border-color: var(--color-accent);
+    transform: translateY(-1px);
+}
 
 .certifications-grid {
     display: grid;
@@ -3012,18 +3187,6 @@ body {
    PREMIUM PORTFOLIO ANIMATIONS & OVERLAYS (ADDITIVE ONLY)
    ========================================================================== */
 
-/* --- Scroll Progress Bar --- */
-.scroll-progress-bar {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 0%;
-    height: 4px;
-    background: var(--color-gradient-1);
-    z-index: 9999;
-    pointer-events: none;
-    border-radius: 0 4px 4px 0;
-}
 
 /* --- Loader Screen --- */
 .loader-wrapper {
@@ -3393,16 +3556,16 @@ html.lenis, html.lenis body {
     position: absolute;
     top: 50%;
     left: 50%;
-    width: 420px;
+    width: 140px;
     height: 260px;
-    background: rgba(255, 255, 255, 0.95);
+    background: var(--color-bg-card);
     backdrop-filter: blur(20px);
-    border: 1px solid rgba(99, 102, 241, 0.3);
+    border: 1px solid rgba(99, 102, 241, 0.15);
     border-radius: 20px;
     padding: var(--spacing-xl);
     display: flex;
     align-items: center;
-    gap: var(--spacing-lg);
+    justify-content: center;
     cursor: pointer;
     transition: all 0.7s cubic-bezier(0.4, 0, 0.2, 1);
     transform-style: preserve-3d;
@@ -3410,8 +3573,8 @@ html.lenis, html.lenis body {
     opacity: 0.4;
     z-index: 1;
     box-shadow: 
-        0 10px 30px rgba(99, 102, 241, 0.15),
-        inset 0 1px 0 rgba(255, 255, 255, 0.3);
+        0 10px 30px rgba(99, 102, 241, 0.08),
+        inset 0 1px 0 rgba(255, 255, 255, 0.1);
     overflow: hidden;
 }
 
@@ -3445,6 +3608,8 @@ html.lenis, html.lenis body {
 
 /* Center Card (Active) */
 .certificate-card-3d.active {
+    width: 420px;
+    justify-content: flex-start;
     transform: translate(-50%, -50%) translateX(0) scale(1) rotateY(0deg);
     opacity: 1;
     z-index: 3;
@@ -3551,6 +3716,17 @@ html.lenis, html.lenis body {
 .certificate-content-3d {
     flex: 1;
     min-width: 0;
+    max-width: 0;
+    opacity: 0;
+    overflow: hidden;
+    margin-left: 0;
+    transition: max-width 0.6s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.5s ease, margin-left 0.6s ease;
+}
+
+.certificate-card-3d.active .certificate-content-3d {
+    max-width: 300px;
+    opacity: 1;
+    margin-left: var(--spacing-lg);
 }
 
 .certificate-title-3d {
@@ -3605,9 +3781,13 @@ html.lenis, html.lenis body {
     }
     
     .certificate-card-3d {
-        width: 280px;
+        width: 100px;
         height: 180px;
-        padding: var(--spacing-lg);
+        padding: var(--spacing-md);
+    }
+    
+    .certificate-card-3d.active {
+        width: 280px;
     }
     
     .certificate-icon-3d {
@@ -3657,10 +3837,13 @@ html.lenis, html.lenis body {
     }
     
     .certificate-card-3d {
-        width: 240px;
+        width: 80px;
         height: 150px;
-        padding: var(--spacing-md);
-        gap: var(--spacing-md);
+        padding: var(--spacing-sm);
+    }
+    
+    .certificate-card-3d.active {
+        width: 240px;
     }
     
     .certificate-icon-3d {
@@ -3895,3 +4078,77 @@ html.lenis, html.lenis body {
 }
 
 
+/* ========================================
+   SCROLL TO TOP / BOTTOM BUTTONS
+   ======================================== */
+
+.scroll-buttons-container {
+    position: fixed;
+    right: 24px;
+    bottom: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 1000;
+}
+
+.scroll-btn {
+    width: 44px;
+    height: 44px;
+    border-radius: 50%;
+    border: 1px solid var(--color-border);
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    color: var(--color-text-secondary);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    opacity: 0;
+    transform: translateY(12px) scale(0.85);
+    pointer-events: none;
+    transition:
+        opacity 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        transform 0.35s cubic-bezier(0.4, 0, 0.2, 1),
+        background-color 0.25s ease,
+        border-color 0.25s ease,
+        color 0.25s ease,
+        box-shadow 0.25s ease;
+}
+
+.scroll-btn.visible {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    pointer-events: auto;
+}
+
+.scroll-btn:hover {
+    background: var(--color-accent);
+    border-color: var(--color-accent);
+    color: #fff;
+    box-shadow:
+        0 8px 24px rgba(99, 102, 241, 0.35),
+        0 0 0 4px rgba(99, 102, 241, 0.12);
+    transform: translateY(-2px) scale(1.08);
+}
+
+.scroll-btn:active {
+    transform: translateY(0) scale(1);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.25);
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+    .scroll-buttons-container {
+        right: 16px;
+        bottom: 16px;
+        gap: 8px;
+    }
+
+    .scroll-btn {
+        width: 40px;
+        height: 40px;
+    }
+}
