@@ -75,6 +75,9 @@ router.post('/admin/create', adminAuth, upload.single('certificate'), async (req
     if (req.file) {
       certificatePath = `/uploads/experiences/${req.file.filename}`;
       certificateName = req.file.originalname;
+    } else if (req.body.certificatePath) {
+      certificatePath = req.body.certificatePath;
+      certificateName = req.body.certificateName || 'manual-certificate.pdf';
     }
 
     const exp = new Experience({
@@ -130,6 +133,9 @@ router.put('/admin/:id', adminAuth, upload.single('certificate'), async (req, re
       }
       exp.certificatePath = `/uploads/experiences/${req.file.filename}`;
       exp.certificateName = req.file.originalname;
+    } else if (req.body.certificatePath) {
+      exp.certificatePath = req.body.certificatePath;
+      exp.certificateName = req.body.certificateName || 'manual-certificate.pdf';
     }
 
     const updated = await exp.save();

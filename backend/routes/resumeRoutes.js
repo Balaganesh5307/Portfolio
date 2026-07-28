@@ -69,15 +69,24 @@ router.get('/admin/all', adminAuth, async (req, res) => {
 // @route   POST /api/admin/resumes
 router.post('/admin/upload', adminAuth, upload.single('resume'), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+    let filePath = '';
+    let fileName = '';
+
+    if (req.file) {
+      filePath = `/uploads/resumes/${req.file.filename}`;
+      fileName = req.file.originalname;
+    } else if (req.body.filePath) {
+      filePath = req.body.filePath;
+      fileName = req.body.fileName || 'manual-resume.pdf';
+    } else {
+      return res.status(400).json({ message: 'No file uploaded or manual path provided' });
     }
 
     const { version } = req.body;
     const resume = new Resume({
       version: version || `v${Date.now()}`,
-      filePath: `/uploads/resumes/${req.file.filename}`,
-      fileName: req.file.originalname
+      filePath,
+      fileName
     });
 
     const saved = await resume.save();

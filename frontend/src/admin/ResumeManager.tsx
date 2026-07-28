@@ -17,6 +17,7 @@ export const ResumeManager: React.FC = () => {
   const [version, setVersion] = useState('');
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const [manualPath, setManualPath] = useState('');
 
   const fetchResumes = async () => {
     try {
@@ -29,6 +30,30 @@ export const ResumeManager: React.FC = () => {
   };
 
   useEffect(() => { fetchResumes(); }, []);
+
+  const handleManualSubmit = async () => {
+    if (!version || !manualPath) return;
+
+    try {
+      await fetch('/api/resume/admin/upload', {
+        method: 'POST',
+        headers: { 
+          'X-Admin-Key': ADMIN_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          version,
+          filePath: manualPath,
+          fileName: manualPath.split('/').pop() || 'resume.pdf'
+        }),
+      });
+      setVersion('');
+      setManualPath('');
+      fetchResumes();
+    } catch (err) {
+      console.error('Error adding manual resume:', err);
+    }
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -82,15 +107,25 @@ export const ResumeManager: React.FC = () => {
       <div className="admin-content">
         {/* Upload */}
         <div className="admin-form" style={{ marginBottom: 32 }}>
-          <div className="admin-form-row">
-            <div className="admin-form-group">
+          <div className="admin-form-row" style={{ alignItems: 'flex-end' }}>
+            <div className="admin-form-group" style={{ flex: 2 }}>
               <label className="admin-form-label">Version Label</label>
               <input className="admin-form-input" value={version} onChange={e => setVersion(e.target.value)} placeholder="e.g. v2.1 — July 2026" />
             </div>
-            <div className="admin-form-group" style={{ justifyContent: 'flex-end' }}>
-              <button className="admin-btn admin-btn-primary" onClick={() => fileRef.current?.click()}>
-                <Upload size={16} /> Upload PDF
-              </button>
+            <div className="admin-form-group" style={{ flex: 3 }}>
+              <label className="admin-form-label">Manual File Path (e.g., /Images/my-resume.pdf)</label>
+              <input className="admin-form-input" value={manualPath} onChange={e => setManualPath(e.target.value)} placeholder="/Images/my-resume.pdf (or leave blank to upload file)" />
+            </div>
+            <div className="admin-form-group" style={{ flex: 1, paddingBottom: 4, display: 'flex', justifyContent: 'flex-end' }}>
+              {manualPath ? (
+                <button className="admin-btn admin-btn-primary" onClick={handleManualSubmit}>
+                  <Upload size={16} /> Save Path
+                </button>
+              ) : (
+                <button className="admin-btn admin-btn-primary" onClick={() => fileRef.current?.click()}>
+                  <Upload size={16} /> Upload PDF
+                </button>
+              )}
               <input ref={fileRef} type="file" accept=".pdf" style={{ display: 'none' }} onChange={handleUpload} />
             </div>
           </div>

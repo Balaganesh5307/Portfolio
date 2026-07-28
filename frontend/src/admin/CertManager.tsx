@@ -21,6 +21,11 @@ export const CertManager: React.FC = () => {
   const [editProvider, setEditProvider] = useState('');
   const fileRef = useRef<HTMLInputElement>(null);
 
+  const [isManual, setIsManual] = useState(false);
+  const [manualTitle, setManualTitle] = useState('');
+  const [manualProvider, setManualProvider] = useState('');
+  const [manualPath, setManualPath] = useState('');
+
   const fetchCerts = async () => {
     try {
       const res = await fetch('/api/certifications');
@@ -32,6 +37,38 @@ export const CertManager: React.FC = () => {
   };
 
   useEffect(() => { fetchCerts(); }, []);
+
+  const handleManualSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!manualTitle || !manualPath) return;
+
+    try {
+      const res = await fetch('/api/admin/certifications', {
+        method: 'POST',
+        headers: { 
+          'X-Admin-Key': ADMIN_KEY,
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          title: manualTitle,
+          provider: manualProvider || 'Unknown',
+          image: manualPath
+        }),
+      });
+      if (res.ok) {
+        setManualTitle('');
+        setManualProvider('');
+        setManualPath('');
+        setIsManual(false);
+        fetchCerts();
+      } else {
+        const errData = await res.json();
+        console.error('Error adding manual certificate:', errData.message);
+      }
+    } catch (err) {
+      console.error('Error adding manual certificate:', err);
+    }
+  };
 
   const handleUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -87,15 +124,46 @@ export const CertManager: React.FC = () => {
     <>
       <div className="admin-topbar">
         <h1 className="admin-topbar-title">📜 Certifications</h1>
+        <button 
+          className="admin-btn admin-btn-secondary" 
+          onClick={() => setIsManual(!isManual)}
+        >
+          {isManual ? 'Upload File' : 'Enter Path Manually'}
+        </button>
       </div>
       <div className="admin-content">
-        {/* Upload Area */}
-        <div className="admin-upload-area" onClick={() => fileRef.current?.click()}>
-          <div className="admin-upload-icon"><Upload size={32} /></div>
-          <p className="admin-upload-text">Click to upload a certificate</p>
-          <p className="admin-upload-hint">Supports PNG, JPG, WebP, PDF (max 15MB)</p>
-        </div>
-        <input ref={fileRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={handleUpload} />
+        {isManual ? (
+          <div className="admin-table-card" style={{ padding: 24, marginBottom: 32 }}>
+            <h3 className="admin-chart-title" style={{ marginBottom: 16 }}>Add Certificate Manually</h3>
+            <form onSubmit={handleManualSubmit} className="admin-form">
+              <div className="admin-form-group">
+                <label className="admin-form-label">Certificate Title *</label>
+                <input className="admin-form-input" value={manualTitle} onChange={e => setManualTitle(e.target.value)} placeholder="e.g. AWS Certified Solutions Architect" required />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Provider</label>
+                <input className="admin-form-input" value={manualProvider} onChange={e => setManualProvider(e.target.value)} placeholder="e.g. Amazon Web Services" />
+              </div>
+              <div className="admin-form-group">
+                <label className="admin-form-label">Image or PDF Path * (Relative to project root, e.g. /Images/my-certificate.png)</label>
+                <input className="admin-form-input" value={manualPath} onChange={e => setManualPath(e.target.value)} placeholder="/Images/my-cert.png" required />
+              </div>
+              <div className="admin-form-actions">
+                <button type="submit" className="admin-btn admin-btn-primary"><Check size={16} /> Add Certificate</button>
+                <button type="button" className="admin-btn admin-btn-secondary" onClick={() => setIsManual(false)}><X size={16} /> Cancel</button>
+              </div>
+            </form>
+          </div>
+        ) : (
+          <>
+            <div className="admin-upload-area" onClick={() => fileRef.current?.click()}>
+              <div className="admin-upload-icon"><Upload size={32} /></div>
+              <p className="admin-upload-text">Click to upload a certificate</p>
+              <p className="admin-upload-hint">Supports PNG, JPG, WebP, PDF (max 15MB)</p>
+            </div>
+            <input ref={fileRef} type="file" accept="image/*,.pdf" style={{ display: 'none' }} onChange={handleUpload} />
+          </>
+        )}
 
         {/* Cert Grid */}
         <div className="admin-cert-grid">

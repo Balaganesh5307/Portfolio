@@ -41,6 +41,7 @@ export const ExperienceManager: React.FC = () => {
   const [certFile, setCertFile] = useState<File | null>(null);
   const [existingCertPath, setExistingCertPath] = useState('');
   const [existingCertName, setExistingCertName] = useState('');
+  const [manualCertPath, setManualCertPath] = useState('');
   const [deleteCert, setDeleteCert] = useState(false);
 
   const [deleteId, setDeleteId] = useState<string | null>(null);
@@ -70,6 +71,7 @@ export const ExperienceManager: React.FC = () => {
     setCertFile(null);
     setExistingCertPath('');
     setExistingCertName('');
+    setManualCertPath('');
     setDeleteCert(false);
     setIsFormOpen(true);
   };
@@ -85,6 +87,7 @@ export const ExperienceManager: React.FC = () => {
     setCertFile(null);
     setExistingCertPath(exp.certificatePath || '');
     setExistingCertName(exp.certificateName || '');
+    setManualCertPath(exp.certificatePath && !exp.certificatePath.startsWith('/uploads/') ? exp.certificatePath : '');
     setDeleteCert(false);
     setIsFormOpen(true);
   };
@@ -100,7 +103,12 @@ export const ExperienceManager: React.FC = () => {
     formData.append('company', company);
     formData.append('description', description);
     if (deleteCert) formData.append('deleteCertificate', 'true');
-    if (certFile) formData.append('certificate', certFile);
+    if (certFile) {
+      formData.append('certificate', certFile);
+    } else if (manualCertPath) {
+      formData.append('certificatePath', manualCertPath);
+      formData.append('certificateName', manualCertPath.split('/').pop() || 'certificate.pdf');
+    }
 
     try {
       if (editingId) {
@@ -280,6 +288,18 @@ export const ExperienceManager: React.FC = () => {
                   style={{ display: 'none' }}
                   onChange={e => { setCertFile(e.target.files?.[0] || null); }}
                 />
+
+                <div style={{ marginTop: 12 }}>
+                  <label className="admin-form-label" style={{ fontSize: 12, color: '#9ca3af' }}>
+                    Or enter Certificate Path manually (e.g., /Images/my-certificate.pdf)
+                  </label>
+                  <input
+                    className="admin-form-input"
+                    value={manualCertPath}
+                    onChange={e => setManualCertPath(e.target.value)}
+                    placeholder="/Images/my-cert.pdf (or leave blank to use file upload)"
+                  />
+                </div>
               </div>
 
               {/* Form Actions */}

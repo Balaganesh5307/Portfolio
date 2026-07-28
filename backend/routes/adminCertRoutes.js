@@ -37,24 +37,30 @@ const upload = multer({
 
 const router = express.Router();
 
-// @desc    Upload a new certification
-// @route   POST /api/admin/certifications
 router.post('/', adminAuth, upload.single('certificate'), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ message: 'No file uploaded' });
+    let filePath = '';
+    let fileType = 'image';
+
+    if (req.file) {
+      filePath = `/uploads/certifications/${req.file.filename}`;
+      fileType = req.file.mimetype === 'application/pdf' ? 'pdf' : 'image';
+    } else if (req.body.image) {
+      filePath = req.body.image;
+      const ext = path.extname(filePath).toLowerCase();
+      fileType = ext === '.pdf' ? 'pdf' : 'image';
+    } else {
+      return res.status(400).json({ message: 'No file uploaded or manual path provided' });
     }
 
     const { title, provider, iconName } = req.body;
-    const isPdf = req.file.mimetype === 'application/pdf';
-    const filePath = `/uploads/certifications/${req.file.filename}`;
 
     const cert = new Certification({
       title: title || 'Untitled Certificate',
       provider: provider || 'Unknown',
       image: filePath,
       iconName: iconName || 'award',
-      fileType: isPdf ? 'pdf' : 'image',
+      fileType,
       filePath
     });
 
