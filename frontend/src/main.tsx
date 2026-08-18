@@ -2,7 +2,17 @@ import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import './index.css'
 import App from './App.tsx'
+import { registerSW } from 'virtual:pwa-register'
 
+// Register the service worker
+registerSW({
+  onNeedRefresh() {
+    console.log("New content available, please refresh.");
+  },
+  onOfflineReady() {
+    console.log("App is ready to work offline.");
+  },
+});
 // Global Fetch Interceptor to support separate hosting (e.g. on Render)
 const API_BASE = import.meta.env.VITE_API_BASE_URL || '';
 

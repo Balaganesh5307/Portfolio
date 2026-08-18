@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import gsap from 'gsap';
+import { Download } from 'lucide-react';
 
 interface HeaderProps {
   lenis: any;
@@ -8,6 +9,28 @@ interface HeaderProps {
 export const Header: React.FC<HeaderProps> = ({ lenis }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+
+  useEffect(() => {
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+    };
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    return () => window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+  }, []);
+
+  const handleInstallClick = async () => {
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      if (outcome === 'accepted') {
+        setDeferredPrompt(null);
+      }
+    } else {
+      alert("App is already installed or installation is not supported on this browser.");
+    }
+  };
 
   // Secret 5-click admin access
   const clickCountRef = useRef(0);
@@ -100,7 +123,30 @@ export const Header: React.FC<HeaderProps> = ({ lenis }) => {
               <li><a href="#contact" className="nav-link" onClick={(e) => handleLinkClick(e, '#contact')}>Contact</a></li>
             </ul>
           </nav>
-          <button className="mobile-menu-btn" aria-label="Toggle menu" onClick={toggleMenu}>
+          
+          <div className="header-actions" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            <button 
+              className="download-app-btn"
+              onClick={handleInstallClick}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                backgroundColor: '#7C3AED', 
+                color: 'white',
+                padding: '10px 20px',
+                borderRadius: '24px',
+                border: 'none',
+                fontWeight: '600',
+                fontSize: '14px',
+                cursor: 'pointer',
+                boxShadow: '0 4px 10px rgba(124, 58, 237, 0.3)',
+                transition: 'all 0.3s ease'
+              }}
+            >
+              <Download size={18} /> Download App
+            </button>
+            <button className="mobile-menu-btn" aria-label="Toggle menu" onClick={toggleMenu}>
             <span className="menu-icon" style={{ display: isMenuOpen ? 'none' : 'block' }}>
                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none"
                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -114,9 +160,10 @@ export const Header: React.FC<HeaderProps> = ({ lenis }) => {
                  stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                  <line x1="18" y1="6" x2="6" y2="18"></line>
                  <line x1="6" y1="6" x2="18" y2="18"></line>
-               </svg>
-             </span>
-           </button>
+                </svg>
+              </span>
+            </button>
+          </div>
         </div>
       </header>
 
@@ -129,6 +176,28 @@ export const Header: React.FC<HeaderProps> = ({ lenis }) => {
           <li><a href="#experience" className="mobile-nav-link" onClick={(e) => handleLinkClick(e, '#experience')}>Experience</a></li>
           <li><a href="#certifications" className="mobile-nav-link" onClick={(e) => handleLinkClick(e, '#certifications')}>Certifications</a></li>
           <li><a href="#contact" className="mobile-nav-link" onClick={(e) => handleLinkClick(e, '#contact')}>Contact</a></li>
+          <li style={{ marginTop: '16px' }}>
+            <button 
+              onClick={handleInstallClick}
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: '8px',
+                backgroundColor: '#7C3AED',
+                color: 'white',
+                padding: '12px 24px',
+                borderRadius: '24px',
+                border: 'none',
+                fontWeight: 'bold',
+                cursor: 'pointer',
+                width: '100%',
+                boxShadow: '0 4px 6px rgba(124, 58, 237, 0.2)'
+              }}
+            >
+              <Download size={20} /> Download App
+            </button>
+          </li>
         </ul>
       </nav>
     </>
