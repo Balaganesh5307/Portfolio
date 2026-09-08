@@ -110,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({ lenis }) => {
       <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
         <div className="container header-content">
           <a href="#" className="header-logo" onClick={handleLogoClick}>
-            <span className="logo-badge">BG</span>
+            <img src="/logo.png" alt="BG Logo" className="logo-badge" />
           </a>
           <nav>
             <ul className="nav-list">
@@ -176,28 +176,6 @@ export const Header: React.FC<HeaderProps> = ({ lenis }) => {
           <li><a href="#experience" className="mobile-nav-link" onClick={(e) => handleLinkClick(e, '#experience')}>Experience</a></li>
           <li><a href="#certifications" className="mobile-nav-link" onClick={(e) => handleLinkClick(e, '#certifications')}>Certifications</a></li>
           <li><a href="#contact" className="mobile-nav-link" onClick={(e) => handleLinkClick(e, '#contact')}>Contact</a></li>
-          <li style={{ marginTop: '16px' }}>
-            <button 
-              onClick={handleInstallClick}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                gap: '8px',
-                backgroundColor: '#7C3AED',
-                color: 'white',
-                padding: '12px 24px',
-                borderRadius: '24px',
-                border: 'none',
-                fontWeight: 'bold',
-                cursor: 'pointer',
-                width: '100%',
-                boxShadow: '0 4px 6px rgba(124, 58, 237, 0.2)'
-              }}
-            >
-              <Download size={20} /> Download App
-            </button>
-          </li>
         </ul>
       </nav>
     </>

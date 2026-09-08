@@ -426,7 +426,7 @@ const Portfolio: React.FC = () => {
       {/* Simulated BG Loading Screen */}
       {isLoading && (
         <div className="loader-wrapper">
-          <div className="loader-logo">BG</div>
+          <img src="/logo.png" alt="Loading Logo" className="loader-logo" />
           <div className="loader-bar">
             <div className="loader-progress" style={{ width: `${loadingProgress}%` }}></div>
           </div>
