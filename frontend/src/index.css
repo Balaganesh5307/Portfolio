@@ -3359,7 +3359,64 @@ html.lenis body {
     opacity: 0;
 }
 
-/* 3D Canvas background overlay */
+/* Aurora Waves Canvas background overlay (Fixed site-wide) */
+.aurora-waves-canvas {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* Ensure all sections are transparent so Aurora Waves show through on every section */
+body,
+.portfolio-app,
+.hero,
+.section,
+.highlights-section,
+.about-section,
+.skills-section,
+.projects-section,
+.education-section,
+.experience-section,
+.certifications-section,
+.platforms-section,
+.declaration-section,
+.contact-section,
+footer {
+    background: transparent !important;
+    background-color: transparent !important;
+}
+
+/* Ensure main section containers sit above fixed background canvas */
+.hero,
+.section,
+main,
+header,
+footer {
+    position: relative;
+    z-index: 1;
+}
+
+/* Glassmorphism translucent cards so Aurora Waves flow behind cards gracefully */
+.experience-card,
+.project-card,
+.certification-card,
+.skill-group,
+.platform-card,
+.about-card,
+.highlight-item,
+.contact-card,
+.declaration-card {
+    background: rgba(255, 255, 255, 0.78) !important;
+    backdrop-filter: blur(12px) !important;
+    -webkit-backdrop-filter: blur(12px) !important;
+    border: 1px solid rgba(226, 232, 240, 0.8) !important;
+}
+
 .hero-3d-canvas {
     position: absolute;
     top: 0;

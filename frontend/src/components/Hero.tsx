@@ -2,7 +2,6 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { TextPlugin } from 'gsap/TextPlugin';
 import { Mail, Phone, MapPin, Download } from 'lucide-react';
-import { Hero3D } from './Hero3D';
 
 gsap.registerPlugin(TextPlugin);
 
@@ -301,7 +300,6 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
 
   return (
     <section ref={heroRef} className="hero">
-      <Hero3D />
       <div ref={glowRef} className="hero-glow"></div>
       <div className="container">
         <div className="hero-content">

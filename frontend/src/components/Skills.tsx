@@ -1,7 +1,6 @@
 import React, { useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
-import { Section3DCanvas } from './Section3DCanvas';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -42,9 +41,8 @@ export const Skills: React.FC<SkillsProps> = ({ skills }) => {
   }, [skills]);
 
   return (
-    <section id="skills" className="section" style={{ position: 'relative', overflow: 'hidden' }}>
-      <Section3DCanvas variant="skills" />
-      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
+    <section id="skills" className="section">
+      <div className="container">
         <div className="section-header">
           <h2 className="section-title">Skills & Technologies</h2>
           <p className="section-subtitle">What I work with</p>

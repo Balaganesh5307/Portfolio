@@ -19,6 +19,7 @@ import { Declaration } from './components/Declaration';
 import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { ScrollButtons } from './components/ScrollButtons';
+import { AuroraWaves } from './components/AuroraWaves';
 
 // Admin Components
 import { AdminLayout } from './admin/AdminLayout';
@@ -517,8 +518,8 @@ const Portfolio: React.FC = () => {
   }, [isLoading]);
 
   return (
-    <div className="app">
-
+    <div className="portfolio-app">
+      <AuroraWaves />
       {/* Simulated BG Loading Screen */}
       {isLoading && (
         <div className="loader-wrapper">
