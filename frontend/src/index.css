@@ -570,12 +570,13 @@ ol {
     left: 0;
     right: 0;
     height: var(--header-height);
-    background-color: rgba(255, 255, 255, 0.95);
-    backdrop-filter: blur(20px) saturate(180%);
+    background-color: rgba(255, 255, 255, 0.97);
+    backdrop-filter: blur(10px);
     border-bottom: 1px solid var(--color-border);
     z-index: 1000;
-    transition: all 0.3s;
+    transition: background-color 0.3s, box-shadow 0.3s;
     box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    will-change: transform;
 }
 
 .header::after {
@@ -620,9 +621,9 @@ ol {
 }
 
 .logo-badge {
-    width: 40px;
-    height: 40px;
-    object-fit: contain;
+    width: 48px;
+    height: 48px;
+    object-fit: cover;
     border-radius: 50%;
     box-shadow: 0 4px 15px rgba(99, 102, 241, 0.3);
     transition: all 0.3s;
@@ -1526,7 +1527,8 @@ ol {
 }
 
 .education-item::before {
-    left: -1.4rem;
+    left: -1rem;
+    transform: translate(-50%, 0);
 }
 
 
@@ -1600,7 +1602,7 @@ ol {
 
 @media (max-width: 768px) {
     .experience-timeline-fill {
-        left: 6px;
+        left: 10px;
     }
 }
 
@@ -1619,7 +1621,7 @@ ol {
 .experience-item::before {
     content: '';
     position: absolute;
-    left: -1.4rem;
+    left: -1rem;
     top: 6px;
     width: 14px;
     height: 14px;
@@ -1629,11 +1631,12 @@ ol {
     box-shadow: 0 0 0 4px rgba(99, 102, 241, 0.1);
     transition: all 0.3s;
     z-index: 2;
+    transform: translate(-50%, 0);
 }
 
 .experience-item:hover::before,
 .experience-item.active::before {
-    transform: scale(1.3);
+    transform: translate(-50%, 0) scale(1.3);
     box-shadow: 0 0 0 6px rgba(99, 102, 241, 0.15);
 }
 
@@ -1704,7 +1707,7 @@ ol {
 
 @media (max-width: 768px) {
     .experience-spark {
-        left: 6px;
+        left: 10px;
     }
 }
 
@@ -2759,46 +2762,115 @@ body {
         font-size: var(--font-size-xs);
     }
 
-    /* Education Timeline - Compact Mobile */
-    .education-timeline {
-        padding-left: var(--spacing-lg);
+    /* Timelines (Education & Work Experience) - Compact Mobile */
+    .education-timeline,
+    .experience-timeline {
+        padding-left: 1.5rem !important;
+        position: relative !important;
     }
 
-    .education-timeline::before {
-        left: 6px;
+    .education-timeline::before,
+    .education-timeline-fill,
+    .experience-timeline::before,
+    .experience-timeline-fill {
+        left: 12px !important;
+        width: 2px !important;
     }
 
-    .education-item {
-        padding-left: var(--spacing-lg);
-        margin-left: 0;
-        padding-bottom: var(--spacing-xl);
+    .timeline-spark,
+    .experience-spark {
+        left: 13px !important;
+        transform: translate(-50%, -50%) !important;
     }
 
-    .education-item::before {
-        left: -12px;
-        width: 10px;
-        height: 10px;
+    .education-item,
+    .experience-item {
+        padding-left: 1.25rem !important;
+        margin-left: 0 !important;
+        padding-bottom: 1.5rem !important;
     }
 
+    .education-item::before,
+    .experience-item::before {
+        left: 13px !important;
+        top: 6px !important;
+        width: 12px !important;
+        height: 12px !important;
+        transform: translate(-50%, 0) !important;
+    }
+
+    .education-item.active::before,
+    .experience-item.active::before {
+        transform: translate(-50%, 0) scale(1.3) !important;
+    }
+
+    /* Experience Card Mobile Layout */
+    .experience-card {
+        padding: 1.125rem 1rem !important;
+        border-radius: 12px !important;
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04) !important;
+    }
+
+    .experience-card-header {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: flex-start !important;
+        gap: 6px !important;
+        margin-bottom: 0.75rem !important;
+    }
+
+    .experience-role {
+        font-size: 1rem !important;
+        font-weight: 700 !important;
+        line-height: 1.35 !important;
+        margin-bottom: 2px !important;
+    }
+
+    .experience-company {
+        font-size: 0.875rem !important;
+        font-weight: 600 !important;
+        margin-bottom: 0 !important;
+    }
+
+    .experience-cert-badge {
+        display: inline-flex !important;
+        align-items: center !important;
+        align-self: flex-start !important;
+        font-size: 0.75rem !important;
+        padding: 4px 10px !important;
+        margin-top: 4px !important;
+        white-space: nowrap !important;
+        max-width: 100% !important;
+    }
+
+    .experience-description {
+        font-size: 0.8125rem !important;
+        line-height: 1.6 !important;
+    }
+
+    /* Education Item Typography Mobile */
     .education-date {
-        font-size: 0.65rem;
-        padding: 4px 12px;
+        font-size: 0.6875rem !important;
+        padding: 4px 12px !important;
+        margin-bottom: 0.5rem !important;
     }
 
     .education-degree {
-        font-size: var(--font-size-sm);
-        font-weight: var(--font-weight-bold);
-        margin-bottom: var(--spacing-xs);
+        font-size: 0.95rem !important;
+        font-weight: 700 !important;
+        line-height: 1.35 !important;
+        margin-bottom: 4px !important;
     }
 
     .education-institution {
-        font-size: var(--font-size-xs);
-        margin-bottom: var(--spacing-xs);
+        font-size: 0.8125rem !important;
+        margin-bottom: 0.5rem !important;
     }
 
     .education-details {
-        font-size: var(--font-size-xs);
-        padding: var(--spacing-xs) var(--spacing-sm);
+        font-size: 0.8125rem !important;
+        padding: 0.625rem 0.875rem !important;
+        line-height: 1.5 !important;
     }
 
     /* Certifications Grid - Cards */
@@ -3287,7 +3359,30 @@ html.lenis body {
     opacity: 0;
 }
 
-/* Canvas background overlay */
+/* 3D Canvas background overlay */
+.hero-3d-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.section-3d-bg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    overflow: hidden;
+    opacity: 0.75;
+}
+
 #hero-particles {
     position: absolute;
     top: 0;
@@ -3307,7 +3402,7 @@ html.lenis body {
 /* --- Header blur scroll addition --- */
 .header.scrolled {
     background-color: rgba(255, 255, 255, 0.8) !important;
-    backdrop-filter: blur(25px) saturate(180%) !important;
+    backdrop-filter: blur(10px) !important;
     box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08), 0 1px 3px rgba(99, 102, 241, 0.05) !important;
     border-bottom: 1px solid rgba(99, 102, 241, 0.1) !important;
 }
@@ -3328,8 +3423,6 @@ html.lenis body {
 /* --- Project 3D Tilt & Glow cursor --- */
 .project-card {
     transition: border-color 0.3s ease, box-shadow 0.3s ease !important;
-    /* Smooth override */
-    transform-style: preserve-3d;
 }
 
 /* --- Timeline fill overlays --- */
@@ -3350,7 +3443,7 @@ html.lenis body {
 
 @media (max-width: 768px) {
     .education-timeline-fill {
-        left: 6px;
+        left: 10px;
     }
 }
 
@@ -4000,12 +4093,13 @@ html.lenis body {
 /* 4. Education Timeline Neon Spark */
 .timeline-spark {
     position: absolute;
-    left: -4px;
+    left: 0;
     top: 0%;
     width: 10px;
     height: 10px;
     background: var(--color-gradient-1);
     border-radius: 50%;
+    transform: translate(-50%, -50%);
     box-shadow:
         0 0 10px var(--color-accent),
         0 0 20px var(--color-accent),
@@ -4018,7 +4112,8 @@ html.lenis body {
 
 @media (max-width: 768px) {
     .timeline-spark {
-        left: 2px;
+        left: 13px !important;
+        transform: translate(-50%, -50%) !important;
     }
 }
 

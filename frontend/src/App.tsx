@@ -330,7 +330,7 @@ const Portfolio: React.FC = () => {
       }
     }
 
-    const scrambleElements = document.querySelectorAll('.section-title, .reveal-name, .logo-badge');
+    const scrambleElements = document.querySelectorAll('.section-title, .reveal-name');
     const scrambleCleanups: (() => void)[] = [];
 
     scrambleElements.forEach(element => {
@@ -358,51 +358,146 @@ const Portfolio: React.FC = () => {
       });
     });
 
+    // E. Smooth Scroll Reveal Animations
+    // Using CSS classes instead of gsap.from() to avoid elements being invisible before trigger fires
+    const revealElements = document.querySelectorAll(
+      '.section-header, .highlight-item, .skill-group, .platform-card, .declaration-card, .contact-detail-item, .social-link, .footer'
+    );
 
+    // Set initial hidden state via CSS class
+    revealElements.forEach(el => {
+      (el as HTMLElement).style.opacity = '0';
+      (el as HTMLElement).style.transform = 'translateY(25px)';
+    });
 
-    // F. 3D Bento-Box Grid Parallax & Scroll/Mouse Shift
-    const gridCleanups: (() => void)[] = [];
-    if (!isMobile) {
-      const grids = document.querySelectorAll('.projects-grid, .skills-simple-grid');
-      grids.forEach(gridElement => {
-        const grid = gridElement as HTMLElement;
-        gsap.set(grid, { transformPerspective: 1200, transformStyle: "preserve-3d" });
-        
+    const revealTriggers: ScrollTrigger[] = [];
 
-        
-        const handleMouseMoveGrid = (e: MouseEvent) => {
-          const rect = grid.getBoundingClientRect();
-          const x = (e.clientX - rect.left) / rect.width - 0.5;
-          const y = (e.clientY - rect.top) / rect.height - 0.5;
-          
-          gsap.to(grid, {
-            rotateY: x * 5,
-            rotateX: -y * 5,
-            duration: 0.8,
-            ease: "power2.out",
-            overwrite: "auto"
-          });
-        };
+    // Stagger groups: elements that should animate together with stagger
+    const staggerGroups: { selector: string; triggerSelector: string; stagger: number; fromX?: number }[] = [
+      { selector: '.highlight-item', triggerSelector: '.highlights-grid', stagger: 0.08 },
+      { selector: '.skill-group', triggerSelector: '.skills-simple-grid', stagger: 0.1 },
+      { selector: '.platform-card', triggerSelector: '.platforms-grid', stagger: 0.12 },
+      { selector: '.contact-detail-item', triggerSelector: '.contact-details', stagger: 0.08, fromX: -15 },
+      { selector: '.social-link', triggerSelector: '.social-links', stagger: 0.08, fromX: 15 },
+    ];
 
-        const handleMouseLeaveGrid = () => {
-          gsap.to(grid, {
-            rotateY: 0,
-            rotateX: 0,
-            duration: 1,
-            ease: "power2.out",
-            overwrite: "auto"
-          });
-        };
-
-        grid.addEventListener('mousemove', handleMouseMoveGrid);
-        grid.addEventListener('mouseleave', handleMouseLeaveGrid);
-
-        gridCleanups.push(() => {
-          grid.removeEventListener('mousemove', handleMouseMoveGrid);
-          grid.removeEventListener('mouseleave', handleMouseLeaveGrid);
+    staggerGroups.forEach(group => {
+      const items = document.querySelectorAll(group.selector);
+      const triggerEl = document.querySelector(group.triggerSelector);
+      if (items.length > 0 && triggerEl) {
+        const trigger = ScrollTrigger.create({
+          trigger: triggerEl,
+          start: 'top 88%',
+          once: true,
+          onEnter: () => {
+            gsap.to(items, {
+              opacity: 1,
+              y: 0,
+              x: 0,
+              duration: 0.6,
+              stagger: group.stagger,
+              ease: 'power3.out',
+              overwrite: 'auto'
+            });
+          }
         });
+        revealTriggers.push(trigger);
+
+        // Set initial X offset if specified
+        if (group.fromX) {
+          items.forEach(el => {
+            (el as HTMLElement).style.transform = `translate(${group.fromX}px, 0px)`;
+          });
+        }
+      }
+    });
+
+    // Individual reveals: section headers, declaration, footer
+    gsap.utils.toArray('.section-header').forEach((header: any) => {
+      const trigger = ScrollTrigger.create({
+        trigger: header,
+        start: 'top 90%',
+        once: true,
+        onEnter: () => {
+          gsap.to(header, {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            ease: 'power3.out',
+            overwrite: 'auto'
+          });
+        }
       });
+      revealTriggers.push(trigger);
+    });
+
+    const declarationCard = document.querySelector('.declaration-card');
+    if (declarationCard) {
+      (declarationCard as HTMLElement).style.opacity = '0';
+      (declarationCard as HTMLElement).style.transform = 'translateY(25px)';
+      const trigger = ScrollTrigger.create({
+        trigger: '.declaration-section',
+        start: 'top 85%',
+        once: true,
+        onEnter: () => {
+          gsap.to(declarationCard, {
+            opacity: 1,
+            y: 0,
+            duration: 0.7,
+            ease: 'power2.out',
+            overwrite: 'auto'
+          });
+        }
+      });
+      revealTriggers.push(trigger);
     }
+
+    const footerEl = document.querySelector('.footer');
+    if (footerEl) {
+      (footerEl as HTMLElement).style.opacity = '0';
+      (footerEl as HTMLElement).style.transform = 'translateY(15px)';
+      const trigger = ScrollTrigger.create({
+        trigger: footerEl,
+        start: 'top 95%',
+        once: true,
+        onEnter: () => {
+          gsap.to(footerEl, {
+            opacity: 1,
+            y: 0,
+            duration: 0.6,
+            ease: 'power2.out',
+            overwrite: 'auto'
+          });
+        }
+      });
+      revealTriggers.push(trigger);
+    }
+
+    // F. Direction-Aware Header Auto-Hide
+    let lastScrollY = 0;
+    let headerHidden = false;
+    const headerEl = document.querySelector('.header') as HTMLElement;
+
+    const handleHeaderScroll = () => {
+      const currentScrollY = window.scrollY;
+      
+      if (currentScrollY > 300) {
+        if (currentScrollY > lastScrollY && !headerHidden) {
+          headerHidden = true;
+          gsap.to(headerEl, { y: -80, duration: 0.3, ease: 'power2.inOut', overwrite: 'auto' });
+        } else if (currentScrollY < lastScrollY && headerHidden) {
+          headerHidden = false;
+          gsap.to(headerEl, { y: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+        }
+      } else if (headerHidden) {
+        headerHidden = false;
+        gsap.to(headerEl, { y: 0, duration: 0.3, ease: 'power2.out', overwrite: 'auto' });
+      }
+      
+      lastScrollY = currentScrollY;
+    };
+
+    window.addEventListener('scroll', handleHeaderScroll, { passive: true });
 
     // G. Extra safety scroll trigger refresh
     const refreshTimeout = setTimeout(() => {
@@ -413,9 +508,10 @@ const Portfolio: React.FC = () => {
       if (lenis) lenis.destroy();
 
       window.removeEventListener('scroll', highlightNavLink);
+      window.removeEventListener('scroll', handleHeaderScroll);
       document.head.removeChild(styleEl);
       scrambleCleanups.forEach(c => c());
-      gridCleanups.forEach(c => c());
+      revealTriggers.forEach(t => t.kill());
       clearTimeout(refreshTimeout);
     };
   }, [isLoading]);

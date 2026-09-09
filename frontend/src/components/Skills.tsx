@@ -1,6 +1,7 @@
 import React, { useEffect } from 'react';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { Section3DCanvas } from './Section3DCanvas';
 
 gsap.registerPlugin(ScrollTrigger);
 
@@ -29,35 +30,21 @@ export const Skills: React.FC<SkillsProps> = ({ skills }) => {
       }
     });
 
-    // Staggered float animation for skills
-    const isMobile = window.innerWidth <= 768;
+    // Add premium-animate class for CSS-based hover effects (no infinite JS tweens)
     const skillTags = document.querySelectorAll('.skill-tag');
-    const animations: gsap.core.Tween[] = [];
-
-    skillTags.forEach((tag, idx) => {
+    skillTags.forEach((tag) => {
       tag.classList.add('premium-animate');
-      if (!isMobile) {
-        const anim = gsap.to(tag, {
-          y: -5,
-          duration: 2 + Math.random() * 2,
-          ease: 'power1.inOut',
-          yoyo: true,
-          repeat: -1,
-          delay: idx * 0.05
-        });
-        animations.push(anim);
-      }
     });
 
     return () => {
       trigger.kill();
-      animations.forEach(anim => anim.kill());
     };
   }, [skills]);
 
   return (
-    <section id="skills" className="section">
-      <div className="container">
+    <section id="skills" className="section" style={{ position: 'relative', overflow: 'hidden' }}>
+      <Section3DCanvas variant="skills" />
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className="section-header">
           <h2 className="section-title">Skills & Technologies</h2>
           <p className="section-subtitle">What I work with</p>

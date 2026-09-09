@@ -15,8 +15,6 @@ interface ContactProps {
 
 export const Contact: React.FC<ContactProps> = ({ email, phone, location }) => {
   useEffect(() => {
-    const isMobile = window.innerWidth <= 768;
-
     const ctx = gsap.context(() => {
       // Contact animations
       gsap.from('.contact-info', {
@@ -40,33 +38,6 @@ export const Contact: React.FC<ContactProps> = ({ email, phone, location }) => {
           start: 'top 80%'
         }
       });
-
-      // Blob movement animation
-      if (!isMobile) {
-        const contactBlob1 = document.querySelector('.contact-blob.blob-1');
-        if (contactBlob1) {
-          gsap.to(contactBlob1, {
-            x: 'random(-50, 50)',
-            y: 'random(-50, 50)',
-            duration: 8,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut'
-          });
-        }
-
-        const contactBlob2 = document.querySelector('.contact-blob.blob-2');
-        if (contactBlob2) {
-          gsap.to(contactBlob2, {
-            x: 'random(-60, 60)',
-            y: 'random(-60, 60)',
-            duration: 10,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut'
-          });
-        }
-      }
     });
 
     return () => ctx.revert();

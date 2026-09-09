@@ -2,6 +2,7 @@ import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { TextPlugin } from 'gsap/TextPlugin';
 import { Mail, Phone, MapPin, Download } from 'lucide-react';
+import { Hero3D } from './Hero3D';
 
 gsap.registerPlugin(TextPlugin);
 
@@ -32,21 +33,27 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
 
     if (!hero || !glow || !canvas) return;
 
-    // 1. Mouse Follow Gradient Glow
+    // 1. Mouse Follow Gradient Glow (throttled with rAF)
     const isMobile = window.innerWidth <= 768;
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
 
     gsap.to(glow, { opacity: 1, duration: 1.5, delay: 1 });
 
+    let glowRafId = 0;
     const handleMouseMoveGlow = (e: MouseEvent) => {
-      const rect = hero.getBoundingClientRect();
-      const x = e.clientX - rect.left;
-      const y = e.clientY - rect.top;
-      gsap.to(glow, {
-        x: x,
-        y: y,
-        duration: 0.6,
-        ease: 'power2.out'
+      if (glowRafId) return;
+      glowRafId = requestAnimationFrame(() => {
+        glowRafId = 0;
+        const rect = hero.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        gsap.to(glow, {
+          x: x,
+          y: y,
+          duration: 0.6,
+          ease: 'power2.out',
+          overwrite: 'auto'
+        });
       });
     };
 
@@ -97,7 +104,7 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
       const ctx = canvas.getContext('2d');
       if (ctx) {
         let particles: Particle[] = [];
-        let mouse: { x: number | null; y: number | null; radius: number } = { x: null, y: null, radius: 140 };
+        let mouse: { x: number | null; y: number | null; radius: number } = { x: null, y: null, radius: 120 };
 
         const resizeCanvas = () => {
           canvas.width = hero.offsetWidth;
@@ -154,8 +161,8 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
 
         const initParticles = () => {
           particles = [];
-          const particleCount = Math.floor((canvas.width * canvas.height) / 16000);
-          for (let i = 0; i < Math.min(particleCount, 75); i++) {
+          const particleCount = Math.floor((canvas.width * canvas.height) / 22000);
+          for (let i = 0; i < Math.min(particleCount, 40); i++) {
             particles.push(new Particle());
           }
         };
@@ -170,10 +177,11 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
             for (let j = i + 1; j < particles.length; j++) {
               const dx = particles[i].x - particles[j].x;
               const dy = particles[i].y - particles[j].y;
-              const dist = Math.sqrt(dx * dx + dy * dy);
+              const distSq = dx * dx + dy * dy;
 
-              if (dist < 115) {
-                let alpha = (115 - dist) / 115 * 0.18;
+              if (distSq < 8100) { // 90*90
+                const dist = Math.sqrt(distSq);
+                let alpha = (90 - dist) / 90 * 0.18;
                 let nearMouse = false;
                 
                 if (mouse.x !== null && mouse.y !== null) {
@@ -181,20 +189,19 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
                   let midY = (particles[i].y + particles[j].y) / 2;
                   let mDx = mouse.x - midX;
                   let mDy = mouse.y - midY;
-                  let mDist = Math.sqrt(mDx * mDx + mDy * mDy);
-                  if (mDist < 130) {
+                  let mDistSq = mDx * mDx + mDy * mDy;
+                  if (mDistSq < 16900) { // 130*130
                     nearMouse = true;
-                    alpha = alpha * (2.2 - (mDist / 130));
+                    alpha = alpha * (2.2 - (Math.sqrt(mDistSq) / 130));
                   }
                 }
 
                 ctx.strokeStyle = nearMouse ? `rgba(99, 102, 241, ${alpha * 1.5})` : `rgba(99, 102, 241, ${alpha})`;
-                ctx.lineWidth = nearMouse ? 1.6 : 1;
+                ctx.lineWidth = nearMouse ? 1.4 : 0.8;
                 ctx.beginPath();
                 ctx.moveTo(particles[i].x, particles[i].y);
                 ctx.lineTo(particles[j].x, particles[j].y);
                 ctx.stroke();
-                ctx.closePath();
               }
             }
           }
@@ -206,10 +213,15 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
         window.addEventListener('resize', resizeListener);
         animateParticles();
 
+        let particleRafId = 0;
         handleMouseMoveParticles = (e: MouseEvent) => {
-          const rect = hero.getBoundingClientRect();
-          mouse.x = e.clientX - rect.left;
-          mouse.y = e.clientY - rect.top;
+          if (particleRafId) return;
+          particleRafId = requestAnimationFrame(() => {
+            particleRafId = 0;
+            const rect = hero.getBoundingClientRect();
+            mouse.x = e.clientX - rect.left;
+            mouse.y = e.clientY - rect.top;
+          });
         };
 
         handleMouseLeaveParticles = () => {
@@ -222,56 +234,41 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
       }
     }
 
-    // 4. Elastic Magnetic Buttons Hover depth
-    const magneticButtons = hero.querySelectorAll('.btn-primary, .btn-outline, .social-link, .nav-link, .project-link, .mobile-menu-btn');
+    // 4. Simplified Magnetic Buttons Hover (no inner-text sub-tween)
+    const magneticButtons = hero.querySelectorAll('.btn-primary, .btn-outline');
     const magneticCleanups: (() => void)[] = [];
 
     if (magneticButtons.length > 0 && !isTouchDevice) {
       magneticButtons.forEach((btnElement) => {
         const btn = btnElement as HTMLElement;
+        let btnRafId = 0;
+
         const handleMouseMoveBtn = (e: MouseEvent) => {
-          const rect = btn.getBoundingClientRect();
-          const x = e.clientX - rect.left - rect.width / 2;
-          const y = e.clientY - rect.top - rect.height / 2;
+          if (btnRafId) return;
+          btnRafId = requestAnimationFrame(() => {
+            btnRafId = 0;
+            const rect = btn.getBoundingClientRect();
+            const x = e.clientX - rect.left - rect.width / 2;
+            const y = e.clientY - rect.top - rect.height / 2;
 
-          gsap.to(btn, {
-            x: x * 0.35,
-            y: y * 0.35,
-            rotateX: -y * 0.05,
-            rotateY: x * 0.05,
-            duration: 0.3,
-            ease: "power2.out"
-          });
-
-          const innerText = btn.querySelector('.social-link-text, span, svg');
-          if (innerText) {
-            gsap.to(innerText, {
-              x: x * 0.15,
-              y: y * 0.15,
+            gsap.to(btn, {
+              x: x * 0.2,
+              y: y * 0.2,
               duration: 0.3,
-              ease: "power2.out"
+              ease: "power2.out",
+              overwrite: "auto"
             });
-          }
+          });
         };
 
         const handleMouseLeaveBtn = () => {
           gsap.to(btn, {
             x: 0,
             y: 0,
-            rotateX: 0,
-            rotateY: 0,
             duration: 0.5,
-            ease: "elastic.out(1.1, 0.6)"
+            ease: "elastic.out(1.1, 0.6)",
+            overwrite: "auto"
           });
-          const innerText = btn.querySelector('.social-link-text, span, svg');
-          if (innerText) {
-            gsap.to(innerText, {
-              x: 0,
-              y: 0,
-              duration: 0.5,
-              ease: "elastic.out(1.1, 0.6)"
-            });
-          }
         };
 
         btn.addEventListener('mousemove', handleMouseMoveBtn);
@@ -287,6 +284,7 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
     // Main Cleanup
     return () => {
       hero.removeEventListener('mousemove', handleMouseMoveGlow);
+      if (glowRafId) cancelAnimationFrame(glowRafId);
       if (resizeListener) window.removeEventListener('resize', resizeListener);
       if (animationFrameId) cancelAnimationFrame(animationFrameId);
       if (handleMouseMoveParticles) hero.removeEventListener('mousemove', handleMouseMoveParticles);
@@ -298,36 +296,12 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
     };
   }, [aboutData]);
 
-  // Floating animations for badge and summary
-  useEffect(() => {
-    gsap.to('.hero-badge', {
-      y: -10,
-      duration: 2.2,
-      ease: 'power1.inOut',
-      yoyo: true,
-      repeat: -1
-    });
-
-    gsap.to('.hero-summary', {
-      y: -4,
-      duration: 3,
-      ease: 'power1.inOut',
-      yoyo: true,
-      repeat: -1
-    });
-
-    gsap.to('.btn-primary', {
-      scale: 1.03,
-      duration: 1.2,
-      yoyo: true,
-      repeat: -1,
-      ease: 'power1.inOut'
-    });
-  }, []);
+  // Removed infinite floating tweens (hero-badge, hero-summary, btn-primary)
+  // They were running perpetually and consuming GSAP tween slots + causing repaints
 
   return (
     <section ref={heroRef} className="hero">
-      <canvas ref={canvasRef} id="hero-particles"></canvas>
+      <Hero3D />
       <div ref={glowRef} className="hero-glow"></div>
       <div className="container">
         <div className="hero-content">

@@ -31,7 +31,6 @@ export const Certifications: React.FC<CertificationsProps> = ({ certifications }
     // Set initial middle card
     setCurrentIndex(Math.floor(certifications.length / 2));
 
-    const particles = document.querySelectorAll('.particle');
     const navButtons = document.querySelectorAll('.coverflow-nav-btn');
     const btnCleanups: (() => void)[] = [];
 
@@ -45,18 +44,6 @@ export const Certifications: React.FC<CertificationsProps> = ({ certifications }
           trigger: '#certifications',
           start: 'top 80%'
         }
-      });
-
-      // floating background particles
-      Array.from(particles).forEach((particle, index) => {
-        gsap.to(particle, {
-          y: -30,
-          opacity: 0,
-          duration: 8,
-          repeat: -1,
-          ease: 'none',
-          delay: index * 1.6
-        });
       });
 
       // Nav buttons hover shadows

@@ -1,5 +1,6 @@
 import React from 'react';
 import { Icon } from './Icon';
+import { Section3DCanvas } from './Section3DCanvas';
 
 interface PlatformStat {
   _id: string;
@@ -22,8 +23,9 @@ interface PlatformsProps {
 
 export const Platforms: React.FC<PlatformsProps> = ({ platforms }) => {
   return (
-    <section className="section">
-      <div className="container">
+    <section className="section" style={{ position: 'relative', overflow: 'hidden' }}>
+      <Section3DCanvas variant="platforms" />
+      <div className="container" style={{ position: 'relative', zIndex: 1 }}>
         <div className="section-header">
           <h2 className="section-title">Coding Platforms</h2>
           <p className="section-subtitle">Where I practice and showcase my skills</p>
