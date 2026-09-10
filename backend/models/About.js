@@ -21,7 +21,8 @@ const aboutSchema = new mongoose.Schema({
   signatureName: { type: String, required: true },
   signatureLocation: { type: String, required: true },
   signatureAvatar: { type: String, required: true },
-  logoUrl: { type: String }
+  logoUrl: { type: String },
+  profileImage: { type: String }
 }, {
   timestamps: true
 });

@@ -16,6 +16,7 @@ interface HeroProps {
     email: string;
     phone: string;
     location: string;
+    profileImage?: string;
   };
 }
 
@@ -303,53 +304,76 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
     <section ref={heroRef} className="hero">
       <div ref={glowRef} className="hero-glow"></div>
       <div className="container">
-        <div className="hero-content">
-          <div className="hero-badge">
-            <span className="hero-badge-dot"></span>
-            <span className="hero-badge-text">Open to Opportunities</span>
-          </div>
+        <div className={`hero-grid-layout ${aboutData.profileImage ? 'has-profile' : 'no-profile'}`}>
+          {/* Left Column: Hero Text Content */}
+          <div className="hero-content">
+            <div className="hero-badge">
+              <span className="hero-badge-dot"></span>
+              <span className="hero-badge-text">Open to Opportunities</span>
+            </div>
 
-          <h1 className="hero-name reveal-name">
-            {aboutData.name} <span className="hero-name-highlight">{aboutData.highlightedName}</span>
-          </h1>
+            <h1 className="hero-name reveal-name">
+              {aboutData.name} <span className="hero-name-highlight">{aboutData.highlightedName}</span>
+            </h1>
 
-          <p className="hero-title">
-            <span className="hero-title-divider"></span>
-            <span ref={typedRoleRef} className="typed-role">{aboutData.title}</span>
-          </p>
+            <p className="hero-title">
+              <span className="hero-title-divider"></span>
+              <span ref={typedRoleRef} className="typed-role">{aboutData.title}</span>
+            </p>
 
-          <p className="hero-summary">{aboutData.summary}</p>
+            <p className="hero-summary">{aboutData.summary}</p>
 
-          <div className="hero-actions">
-            <a href="#contact" className="btn btn-primary">
-              <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
-                fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
-                strokeLinejoin="round" style={{ marginRight: '8px' }}>
-                <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
-                <polyline points="22,6 12,13 2,6"></polyline>
-              </svg> Get in Touch
-            </a>
-            <a href={getFileUrl('/api/resume/download')} className="btn btn-outline" target="_blank" rel="noopener noreferrer" download="BALAGANESH_Resume.pdf">
-              <Download size={16} style={{ marginRight: '8px' }} /> Download Resume
-            </a>
-          </div>
+            <div className="hero-actions">
+              <a href="#contact" className="btn btn-primary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24"
+                  fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round"
+                  strokeLinejoin="round" style={{ marginRight: '8px' }}>
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path>
+                  <polyline points="22,6 12,13 2,6"></polyline>
+                </svg> Get in Touch
+              </a>
+              <a href={getFileUrl('/api/resume/download')} className="btn btn-outline" target="_blank" rel="noopener noreferrer" download="BALAGANESH_Resume.pdf">
+                <Download size={16} style={{ marginRight: '8px' }} /> Download Resume
+              </a>
+            </div>
 
-          <div className="hero-contact">
-            <div className="contact-row">
-              <div className="contact-item">
-                <Mail size={20} style={{ marginRight: '8px' }} />
-                <span>{aboutData.email}</span>
-              </div>
-              <div className="contact-item">
-                <Phone size={20} style={{ marginRight: '8px' }} />
-                <span>{aboutData.phone}</span>
-              </div>
-              <div className="contact-item">
-                <MapPin size={20} style={{ marginRight: '8px' }} />
-                <span>{aboutData.location}</span>
+            <div className="hero-contact">
+              <div className="contact-row">
+                <div className="contact-item">
+                  <Mail size={20} style={{ marginRight: '8px' }} />
+                  <span>{aboutData.email}</span>
+                </div>
+                <div className="contact-item">
+                  <Phone size={20} style={{ marginRight: '8px' }} />
+                  <span>{aboutData.phone}</span>
+                </div>
+                <div className="contact-item">
+                  <MapPin size={20} style={{ marginRight: '8px' }} />
+                  <span>{aboutData.location}</span>
+                </div>
               </div>
             </div>
           </div>
+
+          {/* Right Column: Hero Profile Circle */}
+          {aboutData.profileImage && (
+            <div className="hero-profile-col">
+              <div className="hero-profile-wrapper">
+                <div className="hero-profile-glow-ring"></div>
+                <div className="hero-profile-pulse-ring"></div>
+                <div className="hero-profile-circle">
+                  <img 
+                    src={getFileUrl(aboutData.profileImage)} 
+                    alt={`${aboutData.name} ${aboutData.highlightedName}`} 
+                    className="hero-profile-img" 
+                    onError={(e) => {
+                      (e.currentTarget as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </section>

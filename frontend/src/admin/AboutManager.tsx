@@ -24,6 +24,9 @@ export const AboutManager: React.FC = () => {
 
   // Logo state
   const [logoUrl, setLogoUrl] = useState('/logo.png');
+  const [profileImage, setProfileImage] = useState('');
+  const [profileUploading, setProfileUploading] = useState(false);
+  const profileFileRef = useRef<HTMLInputElement>(null);
   const [logoUploading, setLogoUploading] = useState(false);
   const logoFileRef = useRef<HTMLInputElement>(null);
 
@@ -55,6 +58,7 @@ export const AboutManager: React.FC = () => {
         setResumeUrl(data.resumeUrl || '');
 
         setLogoUrl(data.logoUrl || data.signatureAvatar || '/logo.png');
+        setProfileImage(data.profileImage || '');
 
         setAboutDesktopText((data.aboutTextDesktop || []).join('\n\n'));
         setAboutMobileText((data.aboutTextMobile || []).join('\n\n'));
@@ -102,6 +106,53 @@ export const AboutManager: React.FC = () => {
     } finally {
       setLogoUploading(false);
       if (logoFileRef.current) logoFileRef.current.value = '';
+    }
+  };
+
+  
+  const handleProfileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setProfileUploading(true);
+    const formData = new FormData();
+    formData.append('profileImage', file);
+
+    try {
+      const res = await fetch('/api/admin/profile-image', {
+        method: 'POST',
+        headers: { 'X-Admin-Key': ADMIN_KEY },
+        body: formData
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setProfileImage(data.profileImage);
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 3000);
+      }
+    } catch (err) {
+      console.error('Error uploading profile photo:', err);
+    } finally {
+      setProfileUploading(false);
+      if (profileFileRef.current) profileFileRef.current.value = '';
+    }
+  };
+
+  
+  const handleRemoveProfilePhoto = async () => {
+    if (!window.confirm('Are you sure you want to remove your profile photo?')) return;
+    try {
+      const res = await fetch('/api/admin/profile-image', {
+        method: 'DELETE',
+        headers: { 'X-Admin-Key': ADMIN_KEY }
+      });
+      if (res.ok) {
+        setProfileImage('');
+        setSavedSuccess(true);
+        setTimeout(() => setSavedSuccess(false), 3000);
+      }
+    } catch (err) {
+      console.error('Error removing profile photo:', err);
     }
   };
 
@@ -208,6 +259,53 @@ export const AboutManager: React.FC = () => {
                 <div className="admin-form-group">
                   <label className="admin-form-label">Or Enter Relative Image Path / URL</label>
                   <input className="admin-form-input" value={logoUrl} onChange={e => setLogoUrl(e.target.value)} placeholder="/logo.png or /uploads/logo/logo-123.png" />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          
+          {/* Hero Profile Photo Manager Section */}
+          <div className="admin-table-card" style={{ padding: 24, marginBottom: 28 }}>
+            <h3 className="admin-chart-title" style={{ marginBottom: 18, display: 'flex', alignItems: 'center', gap: 8 }}>
+              <User size={20} color="#818cf8" /> Hero Profile Photo (Right Side Circle)
+            </h3>
+
+            <div style={{ display: 'flex', gap: 24, alignItems: 'center', flexWrap: 'wrap' }}>
+              {/* Preview */}
+              <div style={{ textAlign: 'center' }}>
+                <div style={{ fontSize: '0.8rem', color: '#9ca3af', marginBottom: 8, fontWeight: 600 }}>Circle Profile Preview</div>
+                <div style={{ width: 110, height: 110, borderRadius: '50%', background: 'linear-gradient(135deg, #6366f1, #a855f7)', padding: 3, margin: '0 auto', boxShadow: '0 0 20px rgba(99, 102, 241, 0.4)' }}>
+                  <div style={{ width: '100%', height: '100%', borderRadius: '50%', overflow: 'hidden', background: '#0a0c10', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                    {profileImage ? (
+                      <img src={profileImage} alt="Profile Preview" style={{ width: '100%', height: '100%', objectFit: 'cover', objectPosition: 'center 20%' }} onError={(e) => (e.currentTarget.src = '/logo.png')} />
+                    ) : (
+                      <span style={{ fontSize: '1.8rem', fontWeight: 800, color: '#818cf8' }}>BG</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Upload Controls */}
+              <div style={{ flex: 1, minWidth: 260 }}>
+                <div className="admin-form-group" style={{ marginBottom: 14 }}>
+                  <label className="admin-form-label">Upload Profile Photo (PNG, JPG, WebP)</label>
+                  <div className="admin-actions">
+                    <button type="button" className="admin-btn admin-btn-primary" onClick={() => profileFileRef.current?.click()} disabled={profileUploading}>
+                      <Upload size={16} /> {profileUploading ? 'Uploading Photo...' : 'Choose Profile Photo'}
+                    </button>
+                    {profileImage && (
+                      <button type="button" className="admin-btn admin-btn-danger" onClick={handleRemoveProfilePhoto}>
+                        <Trash2 size={16} /> Remove Photo
+                      </button>
+                    )}
+                    <input ref={profileFileRef} type="file" accept="image/*" style={{ display: 'none' }} onChange={handleProfileUpload} />
+                  </div>
+                </div>
+
+                <div className="admin-form-group">
+                  <label className="admin-form-label">Or Enter Image Path / URL</label>
+                  <input className="admin-form-input" value={profileImage} onChange={e => setProfileImage(e.target.value)} placeholder="/uploads/profile/my-photo.jpg" />
                 </div>
               </div>
             </div>

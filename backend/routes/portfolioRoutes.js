@@ -19,6 +19,25 @@ const logoStorage = multer.diskStorage({
   }
 });
 
+
+const profileStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const dir = path.join(__dirname, '../uploads/profile');
+    if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+    cb(null, dir);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname) || '.png';
+    const uniqueName = `profile-${Date.now()}${ext}`;
+    cb(null, uniqueName);
+  }
+});
+
+const profileUpload = multer({
+  storage: profileStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }
+});
+
 const logoUpload = multer({
   storage: logoStorage,
   limits: { fileSize: 10 * 1024 * 1024 }
@@ -316,6 +335,67 @@ router.post('/admin/logo', adminAuth, logoUpload.single('logo'), async (req, res
       });
     }
     res.json({ message: 'Logo updated successfully', logoUrl });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+// @desc Upload and update profile photo
+router.post('/admin/profile-image', adminAuth, profileUpload.single('profileImage'), async (req, res) => {
+  try {
+    let profileImage = '';
+    if (req.file) {
+      profileImage = `/uploads/profile/${req.file.filename}`;
+    } else if (req.body.profileImage) {
+      profileImage = req.body.profileImage;
+    } else {
+      return res.status(400).json({ message: 'No profile image file uploaded or path provided' });
+    }
+
+    let about = await About.findOne();
+    if (about) {
+      about.profileImage = profileImage;
+      await about.save();
+    } else {
+      about = await About.create({
+        name: 'Balaganesh',
+        highlightedName: 'P',
+        title: 'Developer',
+        summary: 'Portfolio',
+        resumeUrl: '/resume.pdf',
+        email: 'email@test.com',
+        phone: '1234567890',
+        location: 'Coimbatore',
+        declarationText: 'Declaration',
+        signatureName: 'Balaganesh P',
+        signatureLocation: 'Coimbatore',
+        signatureAvatar: 'BG',
+        profileImage: profileImage
+      });
+    }
+    res.json({ message: 'Profile photo updated successfully', profileImage });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
+
+// @desc Remove profile photo
+router.delete('/admin/profile-image', adminAuth, async (req, res) => {
+  try {
+    let about = await About.findOne();
+    if (about) {
+      if (about.profileImage && about.profileImage.startsWith('/uploads/profile/')) {
+        const filePath = path.join(__dirname, '..', about.profileImage);
+        if (fs.existsSync(filePath)) {
+          try { fs.unlinkSync(filePath); } catch (e) { /* ignore */ }
+        }
+      }
+      about.profileImage = '';
+      await about.save();
+    }
+    res.json({ message: 'Profile photo removed successfully' });
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
