@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Save, Plus, Trash2, Check, User, Mail, Phone, MapPin, FileText, Upload, Image as ImageIcon } from 'lucide-react';
+import { Save, Plus, Trash2, Check, User, FileText, Upload, Image as ImageIcon } from 'lucide-react';
 
 const ADMIN_KEY = 'bg-portfolio-admin-2024-secret';
 const headers = {

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Plus, Search, Edit2, Trash2, Check, X, ExternalLink, FolderGit2 } from 'lucide-react';
+import { Plus, Search, Edit2, Trash2, Check, X, ExternalLink } from 'lucide-react';
 import { Github } from '../components/Icon';
 
 const ADMIN_KEY = 'bg-portfolio-admin-2024-secret';

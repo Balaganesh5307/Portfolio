@@ -23,7 +23,6 @@ import { AuroraWaves } from './components/AuroraWaves';
 
 // Admin Components
 import { AdminLayout } from './admin/AdminLayout';
-import { Dashboard } from './admin/Dashboard';
 import { BlogList } from './admin/BlogList';
 import { BlogEditor } from './admin/BlogEditor';
 import { CertManager } from './admin/CertManager';

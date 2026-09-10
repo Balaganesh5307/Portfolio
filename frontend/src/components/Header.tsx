@@ -4,6 +4,7 @@ import { Download } from 'lucide-react';
 
 interface HeaderProps {
   lenis: any;
+  logoUrl?: string;
 }
 
 export const Header: React.FC<HeaderProps> = ({ lenis, logoUrl }) => {
