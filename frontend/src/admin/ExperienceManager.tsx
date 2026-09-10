@@ -152,7 +152,7 @@ export const ExperienceManager: React.FC = () => {
   return (
     <>
       <div className="admin-topbar">
-        <h1 className="admin-topbar-title">💼 Experience Manager</h1>
+        <h1 className="admin-topbar-title">Experience Manager</h1>
         {!isFormOpen && (
           <button className="admin-btn admin-btn-primary" onClick={openNewForm}>
             <Plus size={18} /> Add Experience

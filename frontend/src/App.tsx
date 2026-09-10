@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { HashRouter, Routes, Route } from 'react-router-dom';
+import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import Lenis from 'lenis';
@@ -29,6 +29,11 @@ import { BlogEditor } from './admin/BlogEditor';
 import { CertManager } from './admin/CertManager';
 import { ResumeManager } from './admin/ResumeManager';
 import { ExperienceManager } from './admin/ExperienceManager';
+import { AboutManager } from './admin/AboutManager';
+import { SkillsManager } from './admin/SkillsManager';
+import { ProjectsManager } from './admin/ProjectsManager';
+import { EducationManager } from './admin/EducationManager';
+import { PlatformsManager } from './admin/PlatformsManager';
 
 // GSAP registration
 gsap.registerPlugin(ScrollTrigger);
@@ -39,6 +44,7 @@ const Portfolio: React.FC = () => {
   const [dataLoaded, setDataLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
+  const hasTriggeredRef = React.useRef(false);
 
   // Database Data States
   const [aboutData, setAboutData] = useState<any>(null);
@@ -50,10 +56,26 @@ const Portfolio: React.FC = () => {
   const [certifications, setCertifications] = useState<any[]>([]);
   const [platforms, setPlatforms] = useState<any[]>([]);
 
-  // 1. Fetch data from MERN APIs
+  // Preload image helper
+  const preloadImage = (src: string): Promise<void> => {
+    return new Promise((resolve) => {
+      if (!src) return resolve();
+      const img = new Image();
+      img.onload = () => resolve();
+      img.onerror = () => resolve();
+      img.src = src;
+    });
+  };
+
+  // 1. Fetch data from MERN APIs & Preload assets
   useEffect(() => {
-    const fetchData = async () => {
+    let isMounted = true;
+
+    const loadAppAssets = async () => {
       try {
+        // Preload logo immediately
+        preloadImage('/logo.png');
+
         const [
           aboutRes,
           highlightsRes,
@@ -64,60 +86,80 @@ const Portfolio: React.FC = () => {
           certificationsRes,
           platformsRes
         ] = await Promise.all([
-          fetch('/api/about'),
-          fetch('/api/highlights'),
-          fetch('/api/skills'),
-          fetch('/api/projects'),
-          fetch('/api/education'),
-          fetch('/api/experience'),
-          fetch('/api/certifications'),
-          fetch('/api/platforms')
+          fetch('/api/about').catch(() => null),
+          fetch('/api/highlights').catch(() => null),
+          fetch('/api/skills').catch(() => null),
+          fetch('/api/projects').catch(() => null),
+          fetch('/api/education').catch(() => null),
+          fetch('/api/experience').catch(() => null),
+          fetch('/api/certifications').catch(() => null),
+          fetch('/api/platforms').catch(() => null)
         ]);
 
-        const aboutJson = await aboutRes.json();
-        const highlightsJson = await highlightsRes.json();
-        const skillsJson = await skillsRes.json();
-        const projectsJson = await projectsRes.json();
-        const educationJson = await educationRes.json();
-        const experienceJson = await experienceRes.json();
-        const certificationsJson = await certificationsRes.json();
-        const platformsJson = await platformsRes.json();
+        const aboutJson = aboutRes ? await aboutRes.json().catch(() => null) : null;
+        const highlightsJson = highlightsRes ? await highlightsRes.json().catch(() => []) : [];
+        const skillsJson = skillsRes ? await skillsRes.json().catch(() => []) : [];
+        const projectsJson = projectsRes ? await projectsRes.json().catch(() => []) : [];
+        const educationJson = educationRes ? await educationRes.json().catch(() => []) : [];
+        const experienceJson = experienceRes ? await experienceRes.json().catch(() => []) : [];
+        const certificationsJson = certificationsRes ? await certificationsRes.json().catch(() => []) : [];
+        const platformsJson = platformsRes ? await platformsRes.json().catch(() => []) : [];
 
-        setAboutData(aboutJson);
-        setHighlights(highlightsJson);
-        setSkills(skillsJson);
-        setProjects(projectsJson);
-        setEducationList(educationJson);
-        setExperiences(experienceJson);
-        setCertifications(certificationsJson);
-        setPlatforms(platformsJson);
+        if (isMounted) {
+          setAboutData(aboutJson);
+          setHighlights(highlightsJson);
+          setSkills(skillsJson);
+          setProjects(projectsJson);
+          setEducationList(educationJson);
+          setExperiences(experienceJson);
+          setCertifications(certificationsJson);
+          setPlatforms(platformsJson);
 
-        setDataLoaded(true);
+          if (aboutJson?.signatureAvatar) {
+            await preloadImage(aboutJson.signatureAvatar);
+          }
+
+          setDataLoaded(true);
+        }
       } catch (err) {
         console.error('Error fetching data from API:', err);
-        setDataLoaded(true);
+        if (isMounted) setDataLoaded(true);
       }
     };
 
-    fetchData();
+    loadAppAssets();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // 2. Simulated Loader Progress Bar
+  // 2. Smooth, Non-Stalling Progress Bar
   useEffect(() => {
-    let progress = 0;
-    const interval = setInterval(() => {
-      progress += Math.floor(Math.random() * 15) + 5;
-      if (progress >= 100) {
-        progress = 100;
-        clearInterval(interval);
-        if (dataLoaded) {
-          triggerEntranceAnimation();
-        }
-      }
-      setLoadingProgress(progress);
-    }, 80);
+    let timer: ReturnType<typeof setInterval>;
 
-    return () => clearInterval(interval);
+    if (!dataLoaded) {
+      // Progress smoothly up to 88% while waiting for APIs & preloads
+      timer = setInterval(() => {
+        setLoadingProgress((prev) => {
+          if (prev >= 88) return 88;
+          return prev + Math.floor(Math.random() * 8) + 4;
+        });
+      }, 50);
+    } else {
+      // Data and images ready! Complete bar to 100% and launch entrance once
+      setLoadingProgress(100);
+      if (!hasTriggeredRef.current) {
+        hasTriggeredRef.current = true;
+        setTimeout(() => {
+          triggerEntranceAnimation();
+        }, 150);
+      }
+    }
+
+    return () => {
+      if (timer) clearInterval(timer);
+    };
   }, [dataLoaded]);
 
   // Handle entrance animations after loader hides
@@ -523,7 +565,7 @@ const Portfolio: React.FC = () => {
       {/* Simulated BG Loading Screen */}
       {isLoading && (
         <div className="loader-wrapper">
-          <img src="/logo.png" alt="Loading Logo" className="loader-logo" />
+          <img src={aboutData?.logoUrl || aboutData?.signatureAvatar || "/logo.png"} alt="Loading Logo" className="loader-logo" onError={(e) => (e.currentTarget.src = "/logo.png")} />
           <div className="loader-bar">
             <div className="loader-progress" style={{ width: `${loadingProgress}%` }}></div>
           </div>
@@ -533,7 +575,7 @@ const Portfolio: React.FC = () => {
       {/* Main Pages Setup once loaded */}
       {aboutData && (
         <>
-          <Header lenis={lenisInstance} />
+          <Header lenis={lenisInstance} logoUrl={aboutData?.logoUrl || aboutData?.signatureAvatar} />
           
           <main>
             <Hero aboutData={aboutData} />
@@ -580,7 +622,12 @@ export const App: React.FC = () => {
 
         {/* Admin */}
         <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Dashboard />} />
+          <Route index element={<Navigate to="/admin/about" replace />} />
+          <Route path="about" element={<AboutManager />} />
+          <Route path="skills" element={<SkillsManager />} />
+          <Route path="projects" element={<ProjectsManager />} />
+          <Route path="education" element={<EducationManager />} />
+          <Route path="platforms" element={<PlatformsManager />} />
           <Route path="blogs" element={<BlogList />} />
           <Route path="blogs/new" element={<BlogEditor />} />
           <Route path="blogs/edit/:id" element={<BlogEditor />} />

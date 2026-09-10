@@ -1,3 +1,4 @@
+import { getFileUrl } from '../utils/fileUtils';
 import React, { useEffect, useRef } from 'react';
 import gsap from 'gsap';
 import { TextPlugin } from 'gsap/TextPlugin';
@@ -328,7 +329,7 @@ export const Hero: React.FC<HeroProps> = ({ aboutData }) => {
                 <polyline points="22,6 12,13 2,6"></polyline>
               </svg> Get in Touch
             </a>
-            <a href={aboutData.resumeUrl} className="btn btn-outline" target="_blank" rel="noopener noreferrer">
+            <a href={getFileUrl('/api/resume/download')} className="btn btn-outline" target="_blank" rel="noopener noreferrer" download="BALAGANESH_Resume.pdf">
               <Download size={16} style={{ marginRight: '8px' }} /> Download Resume
             </a>
           </div>

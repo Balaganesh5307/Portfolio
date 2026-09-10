@@ -1,5 +1,6 @@
+import { getFileUrl } from '../utils/fileUtils';
 import React, { useEffect, useState, useRef } from 'react';
-import { Upload, Trash2, FileDown, ExternalLink, Star, FileText } from 'lucide-react';
+import { Upload, Trash2, FileDown, ExternalLink, Star, FileText, FolderDown } from 'lucide-react';
 
 const ADMIN_KEY = 'bg-portfolio-admin-2024-secret';
 
@@ -102,11 +103,15 @@ export const ResumeManager: React.FC = () => {
   return (
     <>
       <div className="admin-topbar">
-        <h1 className="admin-topbar-title">📂 Resume Manager</h1>
+        <h1 className="admin-topbar-title">
+          <FolderDown size={22} color="#6366f1" /> Resume Manager
+        </h1>
       </div>
+
       <div className="admin-content">
-        {/* Upload */}
-        <div className="admin-form" style={{ marginBottom: 32 }}>
+        {/* Upload Form */}
+        <div className="admin-table-card" style={{ padding: 24, marginBottom: 28 }}>
+          <h3 className="admin-chart-title" style={{ marginBottom: 16 }}>Upload or Set Active Resume</h3>
           <div className="admin-form-row" style={{ alignItems: 'flex-end' }}>
             <div className="admin-form-group" style={{ flex: 2 }}>
               <label className="admin-form-label">Version Label</label>
@@ -116,7 +121,7 @@ export const ResumeManager: React.FC = () => {
               <label className="admin-form-label">Manual File Path (e.g., /Images/my-resume.pdf)</label>
               <input className="admin-form-input" value={manualPath} onChange={e => setManualPath(e.target.value)} placeholder="/Images/my-resume.pdf (or leave blank to upload file)" />
             </div>
-            <div className="admin-form-group" style={{ flex: 1, paddingBottom: 4, display: 'flex', justifyContent: 'flex-end' }}>
+            <div className="admin-form-group" style={{ flex: 1, paddingBottom: 2, display: 'flex', justifyContent: 'flex-end' }}>
               {manualPath ? (
                 <button className="admin-btn admin-btn-primary" onClick={handleManualSubmit}>
                   <Upload size={16} /> Save Path
@@ -140,15 +145,20 @@ export const ResumeManager: React.FC = () => {
                   <FileText size={22} />
                 </div>
                 <div className="admin-resume-details">
-                  <h4>{r.version} {r.isActive && <span className="admin-badge active">Active</span>}</h4>
-                  <p>{r.fileName} • {formatDate(r.createdAt)}</p>
+                  <h4 style={{ color: '#ffffff', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 10 }}>
+                    {r.version} {r.isActive && <span className="admin-badge active">Active</span>}
+                  </h4>
+                  <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginTop: 4 }}>
+                    {r.fileName} • {formatDate(r.createdAt)}
+                  </p>
                 </div>
               </div>
+
               <div className="admin-actions">
-                <a href={r.filePath} target="_blank" rel="noopener noreferrer" className="admin-btn-icon" title="Preview">
+                <a href={getFileUrl(r.filePath)} target="_blank" rel="noopener noreferrer" className="admin-btn-icon" title="Preview">
                   <ExternalLink size={16} />
                 </a>
-                <a href={r.filePath} download className="admin-btn-icon" title="Download">
+                <a href={getFileUrl(r.filePath)} download className="admin-btn-icon" title="Download">
                   <FileDown size={16} />
                 </a>
                 {!r.isActive && (

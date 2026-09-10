@@ -20,7 +20,8 @@ const aboutSchema = new mongoose.Schema({
   declarationText: { type: String, required: true },
   signatureName: { type: String, required: true },
   signatureLocation: { type: String, required: true },
-  signatureAvatar: { type: String, required: true }
+  signatureAvatar: { type: String, required: true },
+  logoUrl: { type: String }
 }, {
   timestamps: true
 });

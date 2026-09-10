@@ -6,7 +6,7 @@ interface HeaderProps {
   lenis: any;
 }
 
-export const Header: React.FC<HeaderProps> = ({ lenis }) => {
+export const Header: React.FC<HeaderProps> = ({ lenis, logoUrl }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
@@ -110,7 +110,7 @@ export const Header: React.FC<HeaderProps> = ({ lenis }) => {
       <header className={`header ${isScrolled ? 'scrolled' : ''}`}>
         <div className="container header-content">
           <a href="#" className="header-logo" onClick={handleLogoClick}>
-            <img src="/logo.png" alt="BG Logo" className="logo-badge" />
+            <img src={logoUrl || "/logo.png"} alt="BG Logo" className="logo-badge" onError={(e) => (e.currentTarget.src = "/logo.png")} />
           </a>
           <nav>
             <ul className="nav-list">
