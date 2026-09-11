@@ -20,9 +20,12 @@ import { Contact } from './components/Contact';
 import { Footer } from './components/Footer';
 import { ScrollButtons } from './components/ScrollButtons';
 import { AuroraWaves } from './components/AuroraWaves';
+import { LoadingAnimation } from './components/LoadingAnimation';
 
 // Admin Components
 import { AdminLayout } from './admin/AdminLayout';
+import { Login } from './admin/Login';
+import { ProtectedRoute } from './admin/ProtectedRoute';
 import { BlogList } from './admin/BlogList';
 import { BlogEditor } from './admin/BlogEditor';
 import { CertManager } from './admin/CertManager';
@@ -39,7 +42,6 @@ gsap.registerPlugin(ScrollTrigger);
 
 // ==================== PORTFOLIO PAGE ====================
 const Portfolio: React.FC = () => {
-  const [loadingProgress, setLoadingProgress] = useState(0);
   const [dataLoaded, setDataLoaded] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
   const [lenisInstance, setLenisInstance] = useState<Lenis | null>(null);
@@ -71,6 +73,9 @@ const Portfolio: React.FC = () => {
     let isMounted = true;
 
     const loadAppAssets = async () => {
+      const minLoadTime = 1800;
+      const startTime = Date.now();
+
       try {
         // Preload logo immediately
         preloadImage('/logo.png');
@@ -118,11 +123,19 @@ const Portfolio: React.FC = () => {
             await preloadImage(aboutJson.signatureAvatar);
           }
 
-          setDataLoaded(true);
+          const elapsed = Date.now() - startTime;
+          const remaining = Math.max(0, minLoadTime - elapsed);
+          setTimeout(() => {
+            if (isMounted) setDataLoaded(true);
+          }, remaining);
         }
       } catch (err) {
         console.error('Error fetching data from API:', err);
-        if (isMounted) setDataLoaded(true);
+        const elapsed = Date.now() - startTime;
+        const remaining = Math.max(0, minLoadTime - elapsed);
+        setTimeout(() => {
+          if (isMounted) setDataLoaded(true);
+        }, remaining);
       }
     };
 
@@ -133,32 +146,12 @@ const Portfolio: React.FC = () => {
     };
   }, []);
 
-  // 2. Smooth, Non-Stalling Progress Bar
+  // 2. Trigger entrance once data is loaded (no state polling or 50ms intervals)
   useEffect(() => {
-    let timer: ReturnType<typeof setInterval>;
-
-    if (!dataLoaded) {
-      // Progress smoothly up to 88% while waiting for APIs & preloads
-      timer = setInterval(() => {
-        setLoadingProgress((prev) => {
-          if (prev >= 88) return 88;
-          return prev + Math.floor(Math.random() * 8) + 4;
-        });
-      }, 50);
-    } else {
-      // Data and images ready! Complete bar to 100% and launch entrance once
-      setLoadingProgress(100);
-      if (!hasTriggeredRef.current) {
-        hasTriggeredRef.current = true;
-        setTimeout(() => {
-          triggerEntranceAnimation();
-        }, 150);
-      }
+    if (dataLoaded && !hasTriggeredRef.current) {
+      hasTriggeredRef.current = true;
+      triggerEntranceAnimation();
     }
-
-    return () => {
-      if (timer) clearInterval(timer);
-    };
   }, [dataLoaded]);
 
   // Handle entrance animations after loader hides
@@ -259,6 +252,7 @@ const Portfolio: React.FC = () => {
       });
 
       setLenisInstance(lenis);
+      (window as any).__lenis = lenis;
 
       // Connect Lenis to ScrollTrigger
       lenis.on('scroll', ScrollTrigger.update);
@@ -561,15 +555,8 @@ const Portfolio: React.FC = () => {
   return (
     <div className="portfolio-app">
       <AuroraWaves />
-      {/* Simulated BG Loading Screen */}
-      {isLoading && (
-        <div className="loader-wrapper">
-          <img src={aboutData?.logoUrl || aboutData?.signatureAvatar || "/logo.png"} alt="Loading Logo" className="loader-logo" onError={(e) => (e.currentTarget.src = "/logo.png")} />
-          <div className="loader-bar">
-            <div className="loader-progress" style={{ width: `${loadingProgress}%` }}></div>
-          </div>
-        </div>
-      )}
+      {/* Lottie Reload Animation Screen */}
+      {isLoading && <LoadingAnimation />}
 
       {/* Main Pages Setup once loaded */}
       {aboutData && (
@@ -578,7 +565,7 @@ const Portfolio: React.FC = () => {
           
           <main>
             <Hero aboutData={aboutData} />
-            <Highlights highlights={highlights} />
+            <Highlights highlights={highlights} projectCount={projects.length} certCount={certifications.length} />
             <About 
               aboutTextDesktop={aboutData.aboutTextDesktop} 
               aboutTextMobile={aboutData.aboutTextMobile} 
@@ -588,7 +575,7 @@ const Portfolio: React.FC = () => {
             <Projects projects={projects} />
             <Education educationList={educationList} />
             <Experience experiences={experiences} />
-            <Certifications certifications={certifications} />
+            <Certifications certifications={certifications} lenis={lenisInstance} />
             <Platforms platforms={platforms} />
             <Declaration 
               declarationText={aboutData.declarationText}
@@ -619,21 +606,29 @@ export const App: React.FC = () => {
         {/* Portfolio */}
         <Route path="/" element={<Portfolio />} />
 
-        {/* Admin */}
-        <Route path="/admin" element={<AdminLayout />}>
-          <Route index element={<Navigate to="/admin/about" replace />} />
-          <Route path="about" element={<AboutManager />} />
-          <Route path="skills" element={<SkillsManager />} />
-          <Route path="projects" element={<ProjectsManager />} />
-          <Route path="education" element={<EducationManager />} />
-          <Route path="platforms" element={<PlatformsManager />} />
-          <Route path="blogs" element={<BlogList />} />
-          <Route path="blogs/new" element={<BlogEditor />} />
-          <Route path="blogs/edit/:id" element={<BlogEditor />} />
-          <Route path="certifications" element={<CertManager />} />
-          <Route path="resume" element={<ResumeManager />} />
-          <Route path="experience" element={<ExperienceManager />} />
+        {/* Admin Authentication */}
+        <Route path="/login" element={<Login />} />
+
+        {/* Protected Admin Routes */}
+        <Route element={<ProtectedRoute />}>
+          <Route path="/admin" element={<AdminLayout />}>
+            <Route index element={<Navigate to="/admin/about" replace />} />
+            <Route path="about" element={<AboutManager />} />
+            <Route path="skills" element={<SkillsManager />} />
+            <Route path="projects" element={<ProjectsManager />} />
+            <Route path="education" element={<EducationManager />} />
+            <Route path="platforms" element={<PlatformsManager />} />
+            <Route path="blogs" element={<BlogList />} />
+            <Route path="blogs/new" element={<BlogEditor />} />
+            <Route path="blogs/edit/:id" element={<BlogEditor />} />
+            <Route path="certifications" element={<CertManager />} />
+            <Route path="resume" element={<ResumeManager />} />
+            <Route path="experience" element={<ExperienceManager />} />
+          </Route>
         </Route>
+
+        {/* Catch-all redirect */}
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </HashRouter>
   );

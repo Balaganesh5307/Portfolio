@@ -9,16 +9,31 @@ interface HighlightItem {
   _id: string;
   value: string;
   label: string;
-  iconName: string;
+  iconName?: string;
 }
 
 interface HighlightsProps {
   highlights: HighlightItem[];
+  projectCount?: number;
+  certCount?: number;
 }
 
-export const Highlights: React.FC<HighlightsProps> = ({ highlights }) => {
+export const Highlights: React.FC<HighlightsProps> = ({ highlights = [], projectCount, certCount }) => {
+  const displayHighlights = React.useMemo(() => {
+    return highlights.map(item => {
+      const label = (item.label || '').toLowerCase();
+      if (projectCount !== undefined && label.includes('project')) {
+        return { ...item, value: `${projectCount}+` };
+      }
+      if (certCount !== undefined && label.includes('certificat')) {
+        return { ...item, value: `${certCount}+` };
+      }
+      return item;
+    });
+  }, [highlights, projectCount, certCount]);
+
   useEffect(() => {
-    if (highlights.length === 0) return;
+    if (displayHighlights.length === 0) return;
 
     const values = document.querySelectorAll('.highlight-value');
     const animations: gsap.core.Tween[] = [];
@@ -59,16 +74,16 @@ export const Highlights: React.FC<HighlightsProps> = ({ highlights }) => {
         anim.kill();
       });
     };
-  }, [highlights]);
+  }, [displayHighlights]);
 
   return (
     <section className="highlights-section">
       <div className="container">
         <div className="highlights-grid">
-          {highlights.map((item) => (
+          {displayHighlights.map((item) => (
             <div key={item._id} className="highlight-item">
               <div className="highlight-icon">
-                <Icon name={item.iconName} />
+                <Icon name={item.iconName || 'code'} />
               </div>
               <span className="highlight-value">{item.value}</span>
               <span className="highlight-label">{item.label}</span>

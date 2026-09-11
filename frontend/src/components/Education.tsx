@@ -8,17 +8,19 @@ interface EducationItem {
   _id: string;
   date: string;
   degree: string;
-  institution: string;
-  details: string;
+  institution?: string;
+  school?: string;
+  details?: string;
+  description?: string;
 }
 
 interface EducationProps {
-  educationList: EducationItem[];
+  educationList?: EducationItem[];
 }
 
-export const Education: React.FC<EducationProps> = ({ educationList }) => {
+export const Education: React.FC<EducationProps> = ({ educationList = [] }) => {
   useEffect(() => {
-    if (educationList.length === 0) return;
+    if (!educationList || educationList.length === 0) return;
 
     const timeline = document.querySelector('.education-timeline');
     const timelineFill = document.querySelector('.education-timeline-fill');
@@ -59,11 +61,10 @@ export const Education: React.FC<EducationProps> = ({ educationList }) => {
 
     // Activate timeline items
     const itemTriggers: ScrollTrigger[] = [];
-    timelineItems.forEach(item => {
+    timelineItems.forEach((item) => {
       const trigger = ScrollTrigger.create({
         trigger: item,
-        start: 'top 55%',
-        end: 'bottom 45%',
+        start: 'top 70%',
         onEnter: () => item.classList.add('active'),
         onLeaveBack: () => item.classList.remove('active')
       });
@@ -91,12 +92,14 @@ export const Education: React.FC<EducationProps> = ({ educationList }) => {
         <div className="education-timeline">
           <div className="education-timeline-fill"></div>
           <div className="timeline-spark"></div>
-          {educationList.map((edu) => (
+          {(educationList || []).map((edu) => (
             <div key={edu._id} className="education-item">
               <span className="education-date">{edu.date}</span>
               <h3 className="education-degree">{edu.degree}</h3>
-              <p className="education-institution">{edu.institution}</p>
-              <p className="education-details">{edu.details}</p>
+              <p className="education-institution">{edu.institution || edu.school || ''}</p>
+              {Boolean(edu.details || edu.description) && (
+                <p className="education-details">{edu.details || edu.description}</p>
+              )}
             </div>
           ))}
         </div>

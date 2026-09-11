@@ -10,6 +10,7 @@ import resumeRoutes from './routes/resumeRoutes.js';
 import analyticsRoutes from './routes/analyticsRoutes.js';
 import adminCertRoutes from './routes/adminCertRoutes.js';
 import experienceRoutes from './routes/experienceRoutes.js';
+import authRoutes from './routes/authRoutes.js';
 import analyticsMiddleware from './middleware/analytics.js';
 
 dotenv.config();
@@ -37,6 +38,7 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.use('/api', analyticsMiddleware);
 
 // API Routes
+app.use('/api/auth', authRoutes);
 app.use('/api', portfolioRoutes);
 app.use('/api/blogs', blogRoutes);
 app.use('/api/resume', resumeRoutes);

@@ -11,12 +11,12 @@ interface QuickInfoItem {
 }
 
 interface AboutProps {
-  aboutTextDesktop: string[];
-  aboutTextMobile: string[];
-  quickInfo: QuickInfoItem[];
+  aboutTextDesktop?: string[];
+  aboutTextMobile?: string[];
+  quickInfo?: QuickInfoItem[];
 }
 
-export const About: React.FC<AboutProps> = ({ aboutTextDesktop, aboutTextMobile, quickInfo }) => {
+export const About: React.FC<AboutProps> = ({ aboutTextDesktop = [], aboutTextMobile = [], quickInfo = [] }) => {
   useEffect(() => {
     const ctx = gsap.context(() => {
       // Text container & quick info slide up

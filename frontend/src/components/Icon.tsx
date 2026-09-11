@@ -42,13 +42,14 @@ export const Linkedin: React.FC<CustomIconProps> = ({ className = '', size = 20 
 );
 
 interface IconProps {
-  name: string;
+  name?: string | null;
   className?: string;
   size?: number;
 }
 
-export const Icon: React.FC<IconProps> = ({ name, className = '', size = 20 }) => {
-  switch (name.toLowerCase()) {
+export const Icon: React.FC<IconProps> = ({ name = 'award', className = '', size = 20 }) => {
+  const safeName = (name || 'award').toLowerCase().trim();
+  switch (safeName) {
     case 'briefcase':
       return <Briefcase className={className} size={size} />;
     case 'award':
@@ -94,6 +95,6 @@ export const Icon: React.FC<IconProps> = ({ name, className = '', size = 20 }) =
     case 'x':
       return <X className={className} size={size} />;
     default:
-      return <Code className={className} size={size} />;
+      return <Award className={className} size={size} />;
   }
 };

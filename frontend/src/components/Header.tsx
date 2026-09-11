@@ -45,7 +45,8 @@ export const Header: React.FC<HeaderProps> = ({ lenis, logoUrl }) => {
 
     if (clickCountRef.current >= 5) {
       clickCountRef.current = 0;
-      window.location.hash = '#/admin';
+      const token = localStorage.getItem('admin_token');
+      window.location.hash = token ? '#/admin' : '#/login';
       return;
     }
 
@@ -54,8 +55,12 @@ export const Header: React.FC<HeaderProps> = ({ lenis, logoUrl }) => {
       clickCountRef.current = 0;
     }, 2000);
 
-    // Also do the normal scroll-to-top behavior
-    handleLinkClick(e, '#');
+    // Normal scroll-to-top behavior
+    if (lenis) {
+      lenis.scrollTo(0, { duration: 1.2, immediate: false });
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
   };
 
   useEffect(() => {
@@ -86,23 +91,37 @@ export const Header: React.FC<HeaderProps> = ({ lenis, logoUrl }) => {
   const handleLinkClick = (e: React.MouseEvent<HTMLAnchorElement>, targetId: string) => {
     e.preventDefault();
     setIsMenuOpen(false);
-    const targetElement = document.querySelector(targetId);
-    if (targetElement) {
-      const headerOffset = 80;
-      const elementPosition = targetElement.getBoundingClientRect().top;
-      const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
 
+    if (!targetId || targetId === '#' || targetId === '#top') {
       if (lenis) {
-        lenis.scrollTo(offsetPosition, {
-          duration: 1.2,
-          immediate: false
-        });
+        lenis.scrollTo(0, { duration: 1.2, immediate: false });
       } else {
-        window.scrollTo({
-          top: offsetPosition,
-          behavior: 'smooth'
-        });
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
+      return;
+    }
+
+    try {
+      const targetElement = document.querySelector(targetId);
+      if (targetElement) {
+        const headerOffset = 80;
+        const elementPosition = targetElement.getBoundingClientRect().top;
+        const offsetPosition = elementPosition + window.pageYOffset - headerOffset;
+
+        if (lenis) {
+          lenis.scrollTo(offsetPosition, {
+            duration: 1.2,
+            immediate: false
+          });
+        } else {
+          window.scrollTo({
+            top: offsetPosition,
+            behavior: 'smooth'
+          });
+        }
+      }
+    } catch (err) {
+      console.warn('Selector error in handleLinkClick:', targetId, err);
     }
   };
 

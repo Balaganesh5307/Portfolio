@@ -11,12 +11,12 @@ interface SkillItem {
 }
 
 interface SkillsProps {
-  skills: SkillItem[];
+  skills?: SkillItem[];
 }
 
-export const Skills: React.FC<SkillsProps> = ({ skills }) => {
+export const Skills: React.FC<SkillsProps> = ({ skills = [] }) => {
   useEffect(() => {
-    if (skills.length === 0) return;
+    if (!skills || skills.length === 0) return;
 
     // Trigger skills simple grid active class on scroll
     const trigger = ScrollTrigger.create({
@@ -49,11 +49,11 @@ export const Skills: React.FC<SkillsProps> = ({ skills }) => {
         </div>
 
         <div className="skills-simple-grid">
-          {skills.map((skill) => (
+          {(skills || []).map((skill) => (
             <div key={skill._id} className="skill-group">
               <h3 className="skill-group-title">{skill.category}</h3>
               <div className="skill-tags">
-                {skill.tags.map((tag, tagIndex) => (
+                {(skill.tags || []).map((tag, tagIndex) => (
                   <span key={tagIndex} className="skill-tag">{tag}</span>
                 ))}
               </div>

@@ -3,8 +3,8 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import Certification from '../models/Certification.js';
 import adminAuth from '../middleware/adminAuth.js';
+import * as db from '../services/supabaseData.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,39 +32,34 @@ const upload = multer({
       cb(new Error('Only images (PNG, JPG, WebP) and PDF files are allowed'), false);
     }
   },
-  limits: { fileSize: 15 * 1024 * 1024 } // 15MB limit
+  limits: { fileSize: 15 * 1024 * 1024 }
 });
 
 const router = express.Router();
 
+// @desc    Create certification
+// @route   POST /api/admin/certifications
 router.post('/', adminAuth, upload.single('certificate'), async (req, res) => {
   try {
     let filePath = '';
-    let fileType = 'image';
-
     if (req.file) {
       filePath = `/uploads/certifications/${req.file.filename}`;
-      fileType = req.file.mimetype === 'application/pdf' ? 'pdf' : 'image';
     } else if (req.body.image) {
       filePath = req.body.image;
-      const ext = path.extname(filePath).toLowerCase();
-      fileType = ext === '.pdf' ? 'pdf' : 'image';
     } else {
       return res.status(400).json({ message: 'No file uploaded or manual path provided' });
     }
 
-    const { title, provider, iconName } = req.body;
+    const { title, provider, issueDate, credentialUrl } = req.body;
 
-    const cert = new Certification({
+    const saved = await db.createCertification({
       title: title || 'Untitled Certificate',
       provider: provider || 'Unknown',
       image: filePath,
-      iconName: iconName || 'award',
-      fileType,
-      filePath
+      issueDate: issueDate || '',
+      credentialUrl: credentialUrl || ''
     });
 
-    const saved = await cert.save();
     res.status(201).json(saved);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -75,17 +70,10 @@ router.post('/', adminAuth, upload.single('certificate'), async (req, res) => {
 // @route   PUT /api/admin/certifications/:id
 router.put('/:id', adminAuth, async (req, res) => {
   try {
-    const cert = await Certification.findById(req.params.id);
-    if (!cert) {
+    const updated = await db.updateCertification(req.params.id, req.body);
+    if (!updated) {
       return res.status(404).json({ message: 'Certification not found' });
     }
-
-    const { title, provider, iconName } = req.body;
-    if (title !== undefined) cert.title = title;
-    if (provider !== undefined) cert.provider = provider;
-    if (iconName !== undefined) cert.iconName = iconName;
-
-    const updated = await cert.save();
     res.json(updated);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -96,20 +84,7 @@ router.put('/:id', adminAuth, async (req, res) => {
 // @route   DELETE /api/admin/certifications/:id
 router.delete('/:id', adminAuth, async (req, res) => {
   try {
-    const cert = await Certification.findById(req.params.id);
-    if (!cert) {
-      return res.status(404).json({ message: 'Certification not found' });
-    }
-
-    // Delete file from disk if it's an uploaded file
-    if (cert.filePath) {
-      const absPath = path.join(__dirname, '..', cert.filePath);
-      if (fs.existsSync(absPath)) {
-        fs.unlinkSync(absPath);
-      }
-    }
-
-    await Certification.findByIdAndDelete(req.params.id);
+    await db.deleteCertification(req.params.id);
     res.json({ message: 'Certification deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });

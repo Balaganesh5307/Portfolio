@@ -6,9 +6,12 @@ gsap.registerPlugin(ScrollTrigger);
 
 interface ExperienceItem {
   _id: string;
-  startDate: string;
-  endDate: string | null;
-  role: string;
+  startDate?: string;
+  endDate?: string | null;
+  date?: string;
+  period?: string;
+  role?: string;
+  title?: string;
   company: string;
   description: string;
   certificatePath?: string;
@@ -16,15 +19,17 @@ interface ExperienceItem {
 }
 
 interface ExperienceProps {
-  experiences: ExperienceItem[];
+  experiences?: ExperienceItem[];
 }
 
 const formatDate = (iso: string | null | undefined) => {
   if (!iso) return 'Present';
-  return new Date(iso).toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
+  const d = new Date(iso);
+  if (isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString('en-IN', { month: 'short', year: 'numeric' });
 };
 
-export const Experience: React.FC<ExperienceProps> = ({ experiences }) => {
+export const Experience: React.FC<ExperienceProps> = ({ experiences = [] }) => {
   useEffect(() => {
     if (experiences.length === 0) return;
 
@@ -65,11 +70,10 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences }) => {
     }
 
     const itemTriggers: ScrollTrigger[] = [];
-    timelineItems.forEach(item => {
+    timelineItems.forEach((item) => {
       const trigger = ScrollTrigger.create({
         trigger: item,
-        start: 'top 55%',
-        end: 'bottom 45%',
+        start: 'top 70%',
         onEnter: () => item.classList.add('active'),
         onLeaveBack: () => item.classList.remove('active')
       });
@@ -101,15 +105,15 @@ export const Experience: React.FC<ExperienceProps> = ({ experiences }) => {
           <div className="experience-timeline-fill"></div>
           <div className="experience-spark"></div>
 
-          {experiences.map((exp) => (
+          {(experiences || []).map((exp) => (
             <div key={exp._id} className="experience-item">
               <span className="experience-date">
-                {formatDate(exp.startDate)} — {formatDate(exp.endDate)}
+                {exp.startDate ? `${formatDate(exp.startDate)} — ${formatDate(exp.endDate)}` : (exp.date || exp.period || 'Jun 2024 - Present')}
               </span>
               <div className="experience-card">
                 <div className="experience-card-header">
                   <div>
-                    <h3 className="experience-role">{exp.role}</h3>
+                    <h3 className="experience-role">{exp.role || exp.title}</h3>
                     <p className="experience-company">{exp.company}</p>
                   </div>
                   {exp.certificatePath && (

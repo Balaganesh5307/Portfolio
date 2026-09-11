@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { NavLink, Outlet, useNavigate } from 'react-router-dom';
 import {
-  User, Code2, FolderGit2, GraduationCap, Briefcase, Award, Globe2, FolderDown, FileText, ArrowLeft, Menu, X
+  User, Code2, FolderGit2, GraduationCap, Briefcase, Award, Globe2, FolderDown, FileText, ArrowLeft, Menu, X, LogOut
 } from 'lucide-react';
 import './admin.css';
 
@@ -9,7 +9,19 @@ export const AdminLayout: React.FC = () => {
   const navigate = useNavigate();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
 
+  const adminEmail = localStorage.getItem('admin_email') || 'bg6951872@gmail.com';
+  const adminName = localStorage.getItem('admin_name') || 'Administrator';
+  const adminPicture = localStorage.getItem('admin_picture');
+
   const closeSidebar = () => setIsSidebarOpen(false);
+
+  const handleLogout = () => {
+    localStorage.removeItem('admin_token');
+    localStorage.removeItem('admin_email');
+    localStorage.removeItem('admin_name');
+    localStorage.removeItem('admin_picture');
+    navigate('/login', { replace: true });
+  };
 
   return (
     <div className="admin-wrapper">
@@ -28,9 +40,14 @@ export const AdminLayout: React.FC = () => {
           <span style={{ fontWeight: 700, fontSize: '1rem', color: '#f3f4f6' }}>Admin Panel</span>
         </div>
 
-        <button className="admin-btn-icon" onClick={() => navigate('/')} title="Back to Portfolio">
-          <ArrowLeft size={20} />
-        </button>
+        <div style={{ display: 'flex', gap: '8px', alignItems: 'center' }}>
+          <button className="admin-btn-icon" onClick={handleLogout} title="Sign Out">
+            <LogOut size={18} color="#ef4444" />
+          </button>
+          <button className="admin-btn-icon" onClick={() => navigate('/')} title="Back to Portfolio">
+            <ArrowLeft size={20} />
+          </button>
+        </div>
       </div>
 
       {/* Backdrop overlay on mobile */}
@@ -89,9 +106,28 @@ export const AdminLayout: React.FC = () => {
         </nav>
 
         <div className="admin-sidebar-footer">
+          <div className="admin-user-profile-card">
+            {adminPicture ? (
+              <img src={adminPicture} alt={adminName} className="admin-user-avatar-img" />
+            ) : (
+              <div className="admin-user-avatar-fallback">
+                {adminName.charAt(0).toUpperCase()}
+              </div>
+            )}
+            <div className="admin-user-meta">
+              <span className="admin-user-name">{adminName}</span>
+              <span className="admin-user-email">{adminEmail}</span>
+            </div>
+          </div>
+
+          <button className="admin-logout-btn" onClick={handleLogout} title="Sign Out">
+            <LogOut size={17} />
+            <span>Sign Out</span>
+          </button>
+
           <button className="admin-back-link" onClick={() => { closeSidebar(); navigate('/'); }}>
-            <ArrowLeft size={18} />
-            Back to Portfolio
+            <ArrowLeft size={17} />
+            <span>Back to Portfolio</span>
           </button>
         </div>
       </aside>

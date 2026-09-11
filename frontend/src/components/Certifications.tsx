@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
+import { createPortal } from 'react-dom';
 import gsap from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { Icon } from './Icon';
@@ -9,20 +10,25 @@ interface CertificationItem {
   _id: string;
   title: string;
   provider: string;
-  image: string;
-  iconName: string;
+  image?: string;
+  iconName?: string;
+  issueDate?: string;
+  credentialUrl?: string;
 }
 
 interface CertificationsProps {
   certifications: CertificationItem[];
+  lenis?: any;
 }
 
-export const Certifications: React.FC<CertificationsProps> = ({ certifications }) => {
+export const Certifications: React.FC<CertificationsProps> = ({ certifications, lenis }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const [activeCert, setActiveCert] = useState<CertificationItem | null>(null);
   const autoSlideRef = useRef<any>(null);
   const modalRef = useRef<HTMLDivElement>(null);
   const modalImgRef = useRef<HTMLImageElement>(null);
+  const lastWheelTimeRef = useRef(0);
+  const modalTouchStartX = useRef(0);
 
   // Setup Coverflow entrance animation
   useEffect(() => {
@@ -148,10 +154,64 @@ export const Certifications: React.FC<CertificationsProps> = ({ certifications }
     return 'hidden';
   };
 
-  // Modal Open Animation
+  // Active Certificate Index for navigation
+  const activeCertIndex = activeCert ? certifications.findIndex(c => c._id === activeCert._id) : -1;
+
+  const handleModalNext = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (activeCertIndex !== -1 && certifications.length > 0) {
+      const nextIdx = (activeCertIndex + 1) % certifications.length;
+      setActiveCert(certifications[nextIdx]);
+    }
+  };
+
+  const handleModalPrev = (e?: React.MouseEvent) => {
+    e?.stopPropagation();
+    if (activeCertIndex !== -1 && certifications.length > 0) {
+      const prevIdx = (activeCertIndex - 1 + certifications.length) % certifications.length;
+      setActiveCert(certifications[prevIdx]);
+    }
+  };
+
+  // Wheel scroll inside modal to flip certificates without scrolling the page
+  const handleModalWheel = (e: React.WheelEvent) => {
+    e.stopPropagation();
+    const now = Date.now();
+    if (now - lastWheelTimeRef.current < 350) return;
+    if (Math.abs(e.deltaY) > 25) {
+      lastWheelTimeRef.current = now;
+      if (e.deltaY > 0) {
+        handleModalNext();
+      } else {
+        handleModalPrev();
+      }
+    }
+  };
+
+  // Touch swipe handlers inside modal
+  const onModalTouchStart = (e: React.TouchEvent) => {
+    modalTouchStartX.current = e.changedTouches[0].screenX;
+  };
+
+  const onModalTouchEnd = (e: React.TouchEvent) => {
+    const touchEndX = e.changedTouches[0].screenX;
+    const distance = touchEndX - modalTouchStartX.current;
+    if (Math.abs(distance) > 40) {
+      if (distance < 0) {
+        handleModalNext();
+      } else {
+        handleModalPrev();
+      }
+    }
+  };
+
+  // Modal Open Animation with Background Scroll Lock
   const handleCardClick = (cert: CertificationItem) => {
     setActiveCert(cert);
+    if (lenis) lenis.stop();
+    (window as any).__lenis?.stop?.();
     document.body.style.overflow = "hidden";
+    document.documentElement.style.overflow = "hidden";
 
     // Wait for modal to render in DOM
     setTimeout(() => {
@@ -161,40 +221,61 @@ export const Certifications: React.FC<CertificationsProps> = ({ certifications }
           { opacity: 1, duration: 0.3 }
         );
         gsap.fromTo(modalImgRef.current, 
-          { scale: 0.8, y: 50 }, 
-          { scale: 1, y: 0, duration: 0.4, ease: 'back.out(1.2)' }
+          { scale: 0.85, y: 30 }, 
+          { scale: 1, y: 0, duration: 0.35, ease: 'power2.out' }
         );
       }
     }, 10);
   };
 
-  // Modal Close Animation
+  // Modal Close Animation with Background Scroll Restore
   const handleCloseModal = () => {
     if (modalRef.current) {
       gsap.to(modalRef.current, {
         opacity: 0,
-        duration: 0.25,
+        duration: 0.2,
         onComplete: () => {
           setActiveCert(null);
-          document.body.style.overflow = "auto";
+          if (lenis) lenis.start();
+          (window as any).__lenis?.start?.();
+          document.body.style.overflow = "";
+          document.documentElement.style.overflow = "";
         }
       });
     } else {
       setActiveCert(null);
-      document.body.style.overflow = "auto";
+      if (lenis) lenis.start();
+      (window as any).__lenis?.start?.();
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
     }
   };
 
-  // Escape key close modal
+  // Keyboard navigation (Arrow keys + Escape)
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && activeCert) {
+      if (!activeCert) return;
+      if (e.key === 'Escape') {
         handleCloseModal();
+      } else if (e.key === 'ArrowRight') {
+        handleModalNext();
+      } else if (e.key === 'ArrowLeft') {
+        handleModalPrev();
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [activeCert]);
+  }, [activeCert, activeCertIndex, certifications]);
+
+  // Clean up scroll lock if component unmounts
+  useEffect(() => {
+    return () => {
+      document.body.style.overflow = "";
+      document.documentElement.style.overflow = "";
+      if (lenis) lenis.start();
+      (window as any).__lenis?.start?.();
+    };
+  }, [lenis]);
 
   return (
     <section id="certifications" className="section">
@@ -246,7 +327,7 @@ export const Certifications: React.FC<CertificationsProps> = ({ certifications }
                   onClick={() => handleCardClick(cert)}
                 >
                   <div className="certificate-icon-3d">
-                    <Icon name={cert.iconName} size={24} />
+                    <Icon name={cert.iconName || 'award'} size={24} />
                   </div>
                   <div className="certificate-content-3d">
                     <h4 className="certificate-title-3d">{cert.title}</h4>
@@ -266,13 +347,71 @@ export const Certifications: React.FC<CertificationsProps> = ({ certifications }
         </div>
       </div>
 
-      {/* Image Modal */}
-      {activeCert && (
-        <div ref={modalRef} id="image-modal" className="modal" style={{ display: 'block' }} onClick={handleCloseModal}>
-          <span className="close" onClick={handleCloseModal}>&times;</span>
-          <img ref={modalImgRef} className="modal-content" id="img01" src={activeCert.image} alt={activeCert.title} onClick={(e) => e.stopPropagation()} />
-          <div id="caption">{activeCert.title}</div>
-        </div>
+      {/* Image Modal - Portaled to document.body so it is completely immune to any parent stacking context */}
+      {activeCert && createPortal(
+        <div 
+          ref={modalRef} 
+          id="image-modal" 
+          className="modal" 
+          style={{ display: 'flex' }} 
+          onClick={handleCloseModal}
+          onWheel={handleModalWheel}
+          onTouchStart={onModalTouchStart}
+          onTouchEnd={onModalTouchEnd}
+        >
+          {/* Close button */}
+          <button 
+            type="button"
+            className="close" 
+            onClick={(e) => { e.stopPropagation(); handleCloseModal(); }}
+            aria-label="Close modal"
+          >
+            <Icon name="x" size={24} />
+          </button>
+
+          {/* Navigation buttons */}
+          {certifications.length > 1 && (
+            <>
+              <button 
+                type="button" 
+                className="modal-nav-btn modal-prev-btn" 
+                onClick={handleModalPrev}
+                aria-label="Previous certificate"
+              >
+                <Icon name="chevron-left" size={26} />
+              </button>
+              <button 
+                type="button" 
+                className="modal-nav-btn modal-next-btn" 
+                onClick={handleModalNext}
+                aria-label="Next certificate"
+              >
+                <Icon name="chevron-right" size={26} />
+              </button>
+            </>
+          )}
+
+          {/* Certificate Inner Container */}
+          <div className="modal-inner" onClick={(e) => e.stopPropagation()}>
+            <img 
+              ref={modalImgRef} 
+              className="modal-content" 
+              id="img01" 
+              src={activeCert.image} 
+              alt={activeCert.title} 
+            />
+            <div id="caption">
+              <h4>{activeCert.title}</h4>
+              <p className="modal-caption-provider">{activeCert.provider}</p>
+              {certifications.length > 1 && (
+                <span className="modal-counter">
+                  {(activeCertIndex !== -1 ? activeCertIndex + 1 : 1)} / {certifications.length}
+                </span>
+              )}
+            </div>
+          </div>
+        </div>,
+        document.body
       )}
     </section>
   );

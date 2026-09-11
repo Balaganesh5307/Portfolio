@@ -3,8 +3,8 @@ import multer from 'multer';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
-import Experience from '../models/Experience.js';
 import adminAuth from '../middleware/adminAuth.js';
+import * as db from '../services/supabaseData.js';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -32,7 +32,7 @@ const upload = multer({
       cb(new Error('Only images (PNG, JPG, WebP) and PDF files are allowed'), false);
     }
   },
-  limits: { fileSize: 10 * 1024 * 1024 } // 10MB limit
+  limits: { fileSize: 10 * 1024 * 1024 }
 });
 
 const router = express.Router();
@@ -43,7 +43,7 @@ const router = express.Router();
 // @route   GET /api/experience
 router.get('/', async (req, res) => {
   try {
-    const experiences = await Experience.find().sort({ startDate: -1 });
+    const experiences = await db.getExperience();
     res.json(experiences);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -56,7 +56,7 @@ router.get('/', async (req, res) => {
 // @route   GET /api/experience/admin/all
 router.get('/admin/all', adminAuth, async (req, res) => {
   try {
-    const experiences = await Experience.find().sort({ startDate: -1 });
+    const experiences = await db.getExperience();
     res.json(experiences);
   } catch (error) {
     res.status(500).json({ message: error.message });
@@ -67,7 +67,7 @@ router.get('/admin/all', adminAuth, async (req, res) => {
 // @route   POST /api/experience/admin/create
 router.post('/admin/create', adminAuth, upload.single('certificate'), async (req, res) => {
   try {
-    const { startDate, endDate, role, company, description } = req.body;
+    const { startDate, endDate, role, title, company, description, period, technologies } = req.body;
     
     let certificatePath = '';
     let certificateName = '';
@@ -80,17 +80,19 @@ router.post('/admin/create', adminAuth, upload.single('certificate'), async (req
       certificateName = req.body.certificateName || 'manual-certificate.pdf';
     }
 
-    const exp = new Experience({
-      startDate,
-      endDate: endDate === 'Present' || !endDate ? null : endDate,
-      role,
-      company,
-      description,
+    const expPeriod = period || (startDate ? `${startDate} - ${endDate || 'Present'}` : 'Present');
+    const expTitle = title || role || 'Software Developer';
+
+    const saved = await db.createExperience({
+      title: expTitle,
+      company: company || 'Company',
+      period: expPeriod,
+      description: description || '',
+      technologies: Array.isArray(technologies) ? technologies : (technologies ? technologies.split(',').map(t => t.trim()) : []),
       certificatePath,
       certificateName
     });
 
-    const saved = await exp.save();
     res.status(201).json(saved);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -101,44 +103,28 @@ router.post('/admin/create', adminAuth, upload.single('certificate'), async (req
 // @route   PUT /api/experience/admin/:id
 router.put('/admin/:id', adminAuth, upload.single('certificate'), async (req, res) => {
   try {
-    const exp = await Experience.findById(req.params.id);
-    if (!exp) {
-      return res.status(404).json({ message: 'Experience not found' });
+    const { startDate, endDate, role, title, company, description, period, technologies } = req.body;
+
+    const payload = {};
+    if (title || role) payload.title = title || role;
+    if (company) payload.company = company;
+    if (description) payload.description = description;
+    if (period) payload.period = period;
+    else if (startDate) payload.period = `${startDate} - ${endDate || 'Present'}`;
+    if (technologies) {
+      payload.technologies = Array.isArray(technologies) ? technologies : technologies.split(',').map(t => t.trim());
     }
 
-    const { startDate, endDate, role, company, description, deleteCertificate } = req.body;
-
-    if (startDate !== undefined) exp.startDate = startDate;
-    if (endDate !== undefined) {
-      exp.endDate = endDate === 'Present' || !endDate ? null : endDate;
-    }
-    if (role !== undefined) exp.role = role;
-    if (company !== undefined) exp.company = company;
-    if (description !== undefined) exp.description = description;
-
-    // Handle certificate file deletion requested by admin
-    if (deleteCertificate === 'true' && exp.certificatePath) {
-      const absPath = path.join(__dirname, '..', exp.certificatePath);
-      if (fs.existsSync(absPath)) fs.unlinkSync(absPath);
-      exp.certificatePath = '';
-      exp.certificateName = '';
-    }
-
-    // Handle new certificate file upload
     if (req.file) {
-      // Delete old file first if exists
-      if (exp.certificatePath) {
-        const oldPath = path.join(__dirname, '..', exp.certificatePath);
-        if (fs.existsSync(oldPath)) fs.unlinkSync(oldPath);
-      }
-      exp.certificatePath = `/uploads/experiences/${req.file.filename}`;
-      exp.certificateName = req.file.originalname;
+      payload.certificatePath = `/uploads/experiences/${req.file.filename}`;
+      payload.certificateName = req.file.originalname;
     } else if (req.body.certificatePath) {
-      exp.certificatePath = req.body.certificatePath;
-      exp.certificateName = req.body.certificateName || 'manual-certificate.pdf';
+      payload.certificatePath = req.body.certificatePath;
+      payload.certificateName = req.body.certificateName || 'manual-certificate.pdf';
     }
 
-    const updated = await exp.save();
+    const updated = await db.updateExperience(req.params.id, payload);
+    if (!updated) return res.status(404).json({ message: 'Experience not found' });
     res.json(updated);
   } catch (error) {
     res.status(400).json({ message: error.message });
@@ -149,20 +135,7 @@ router.put('/admin/:id', adminAuth, upload.single('certificate'), async (req, re
 // @route   DELETE /api/experience/admin/:id
 router.delete('/admin/:id', adminAuth, async (req, res) => {
   try {
-    const exp = await Experience.findById(req.params.id);
-    if (!exp) {
-      return res.status(404).json({ message: 'Experience not found' });
-    }
-
-    // Delete associated certificate file from disk
-    if (exp.certificatePath) {
-      const absPath = path.join(__dirname, '..', exp.certificatePath);
-      if (fs.existsSync(absPath)) {
-        fs.unlinkSync(absPath);
-      }
-    }
-
-    await Experience.findByIdAndDelete(req.params.id);
+    await db.deleteExperience(req.params.id);
     res.json({ message: 'Experience deleted' });
   } catch (error) {
     res.status(500).json({ message: error.message });

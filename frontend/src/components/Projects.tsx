@@ -13,16 +13,16 @@ interface ProjectItem {
   description: string;
   githubLink: string;
   liveLink?: string;
-  tags: string[];
+  tags?: string[];
 }
 
 interface ProjectsProps {
-  projects: ProjectItem[];
+  projects?: ProjectItem[];
 }
 
-export const Projects: React.FC<ProjectsProps> = ({ projects }) => {
+export const Projects: React.FC<ProjectsProps> = ({ projects = [] }) => {
   useEffect(() => {
-    if (projects.length === 0) return;
+    if (!projects || projects.length === 0) return;
 
     const projectCards = document.querySelectorAll('.project-card');
     const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
@@ -131,7 +131,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects }) => {
           <p className="section-subtitle">Some of my recent work</p>
         </div>
         <div className="projects-grid">
-          {projects.map((project) => (
+          {(projects || []).map((project) => (
             <div key={project._id} className="project-card">
               <div className="project-glare"></div>
               <span className="project-number">{project.number}</span>
@@ -152,7 +152,7 @@ export const Projects: React.FC<ProjectsProps> = ({ projects }) => {
               </div>
               <p className="project-description">{project.description}</p>
               <div className="project-tech">
-                {project.tags.map((tag, idx) => (
+                {(project.tags || []).map((tag, idx) => (
                   <span key={idx} className="tag">{tag}</span>
                 ))}
               </div>
