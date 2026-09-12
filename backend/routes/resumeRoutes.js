@@ -100,20 +100,21 @@ router.get('/admin/all', adminAuth, async (req, res) => {
 });
 
 // @desc    Upload new resume version
-// @route   POST /api/admin/resumes
+// @route   POST /api/resume/admin/upload
 router.post('/admin/upload', adminAuth, upload.single('resume'), async (req, res) => {
   try {
     let fileUrl = '';
     let originalName = '';
     let fileSize = 0;
+    const version = req.body.version || '';
 
     if (req.file) {
       fileUrl = `/uploads/resumes/${req.file.filename}`;
       originalName = req.file.originalname;
       fileSize = req.file.size;
-    } else if (req.body.fileUrl) {
-      fileUrl = req.body.fileUrl;
-      originalName = req.body.originalName || 'resume.pdf';
+    } else if (req.body.fileUrl || req.body.filePath) {
+      fileUrl = req.body.fileUrl || req.body.filePath;
+      originalName = req.body.originalName || req.body.fileName || fileUrl.split('/').pop() || 'resume.pdf';
     } else {
       return res.status(400).json({ message: 'No file uploaded or manual path provided' });
     }
@@ -121,11 +122,9 @@ router.post('/admin/upload', adminAuth, upload.single('resume'), async (req, res
     const saved = await db.createResume({
       fileUrl,
       originalName,
-      fileSize
+      fileSize,
+      version
     });
-
-    // Also update About profile's resumeUrl
-    await db.updateAbout({ resumeUrl: fileUrl });
 
     res.status(201).json(saved);
   } catch (error) {
@@ -133,8 +132,19 @@ router.post('/admin/upload', adminAuth, upload.single('resume'), async (req, res
   }
 });
 
+// @desc    Set active resume version
+// @route   PUT /api/resume/admin/:id/activate
+router.put('/admin/:id/activate', adminAuth, async (req, res) => {
+  try {
+    const activated = await db.activateResume(req.params.id);
+    res.json(activated);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+});
+
 // @desc    Delete a resume version
-// @route   DELETE /api/admin/resumes/:id
+// @route   DELETE /api/resume/admin/:id
 router.delete('/admin/:id', adminAuth, async (req, res) => {
   try {
     await db.deleteResume(req.params.id);

@@ -28,6 +28,29 @@ export const normalizeRow = (row) => {
   if (row.filesize !== undefined) copy.fileSize = row.filesize;
   if (row.coverimage !== undefined) copy.coverImage = row.coverimage;
 
+  // Resume normalization
+  if (copy.fileUrl || copy.fileurl) {
+    copy.filePath = copy.filePath || copy.fileUrl || copy.fileurl;
+    copy.fileUrl = copy.fileUrl || copy.filePath || copy.fileurl;
+  }
+  if (copy.originalName || copy.originalname) {
+    const rawName = copy.originalName || copy.originalname;
+    if (rawName.includes(' — ')) {
+      const parts = rawName.split(' — ');
+      copy.version = copy.version || parts[0];
+      copy.fileName = copy.fileName || parts.slice(1).join(' — ');
+    } else if (rawName.includes(' - ')) {
+      const parts = rawName.split(' - ');
+      copy.version = copy.version || parts[0];
+      copy.fileName = copy.fileName || parts.slice(1).join(' - ');
+    } else {
+      copy.fileName = copy.fileName || rawName;
+      copy.version = copy.version || 'v1.0';
+    }
+    copy.originalName = copy.originalName || rawName;
+  }
+  copy.createdAt = copy.createdAt || row.created_at || row.uploadedat || row.uploadedAt || new Date().toISOString();
+
   // Education normalization (support both schema formats)
   if (row.school !== undefined && copy.institution === undefined) copy.institution = row.school;
   if (row.institution !== undefined && copy.school === undefined) copy.school = row.institution;
@@ -454,18 +477,68 @@ export const deletePlatform = async (id) => {
 export const getResumes = async () => {
   const { data, error } = await supabase.from('resumes').select('*').order('uploadedat', { ascending: false });
   if (error) throw error;
-  return (data || []).map(normalizeRow);
+
+  const about = await getAbout();
+  const activeUrl = about?.resumeUrl || about?.resumeurl;
+
+  const normalized = (data || []).map(normalizeRow);
+
+  let foundActive = false;
+  normalized.forEach(r => {
+    if (activeUrl && (r.fileUrl === activeUrl || r.filePath === activeUrl)) {
+      r.isActive = true;
+      foundActive = true;
+    } else {
+      r.isActive = false;
+    }
+  });
+
+  if (!foundActive && normalized.length > 0) {
+    normalized[0].isActive = true;
+  }
+
+  return normalized;
 };
 
 export const createResume = async (payload) => {
+  const version = payload.version ? payload.version.trim() : '';
+  const rawFileName = payload.originalName || payload.originalname || payload.fileName || payload.filename || 'resume.pdf';
+  let combinedOriginalName = rawFileName;
+  if (version && !rawFileName.startsWith(version)) {
+    combinedOriginalName = `${version} - ${rawFileName}`;
+  }
+
+  const fileUrl = payload.fileUrl || payload.fileurl || payload.filePath || payload.filepath;
+
   const dbData = {
-    fileurl: payload.fileUrl || payload.fileurl,
-    originalname: payload.originalName || payload.originalname || 'resume.pdf',
+    fileurl: fileUrl,
+    originalname: combinedOriginalName,
     filesize: payload.fileSize || payload.filesize || 0
   };
+
   const { data, error } = await supabase.from('resumes').insert(dbData).select().single();
   if (error) throw error;
+
+  // Set the new resume as active in About profile
+  if (fileUrl) {
+    await updateAbout({ resumeUrl: fileUrl });
+  }
+
   return normalizeRow(data);
+};
+
+export const activateResume = async (id) => {
+  const { data: resume, error } = await supabase.from('resumes').select('*').eq('id', id).single();
+  if (error) throw error;
+
+  const norm = normalizeRow(resume);
+  const fileUrl = norm.fileUrl || norm.filePath;
+
+  if (fileUrl) {
+    await updateAbout({ resumeUrl: fileUrl });
+  }
+
+  return norm;
 };
 
 export const deleteResume = async (id) => {

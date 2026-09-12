@@ -33,7 +33,7 @@ export const ResumeManager: React.FC = () => {
   useEffect(() => { fetchResumes(); }, []);
 
   const handleManualSubmit = async () => {
-    if (!version || !manualPath) return;
+    if (!manualPath) return;
 
     try {
       await fetch('/api/resume/admin/upload', {
@@ -43,7 +43,7 @@ export const ResumeManager: React.FC = () => {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-          version,
+          version: version || `v${new Date().toISOString().slice(0, 10)}`,
           filePath: manualPath,
           fileName: manualPath.split('/').pop() || 'resume.pdf'
         }),
@@ -97,8 +97,11 @@ export const ResumeManager: React.FC = () => {
     fetchResumes();
   };
 
-  const formatDate = (d: string) =>
-    new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const formatDate = (d: string) => {
+    if (!d) return 'Recently';
+    const date = new Date(d);
+    return isNaN(date.getTime()) ? 'Recently' : date.toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
+  };
 
   return (
     <>
@@ -138,40 +141,46 @@ export const ResumeManager: React.FC = () => {
 
         {/* Resume List */}
         <div className="admin-resume-list">
-          {resumes.map(r => (
-            <div key={r._id} className={`admin-resume-item ${r.isActive ? 'is-active' : ''}`}>
-              <div className="admin-resume-info">
-                <div className="admin-resume-icon">
-                  <FileText size={22} />
-                </div>
-                <div className="admin-resume-details">
-                  <h4 style={{ color: '#ffffff', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 10 }}>
-                    {r.version} {r.isActive && <span className="admin-badge active">Active</span>}
-                  </h4>
-                  <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginTop: 4 }}>
-                    {r.fileName} • {formatDate(r.createdAt)}
-                  </p>
-                </div>
-              </div>
+          {resumes.map(r => {
+            const displayVersion = r.version || 'Resume';
+            const displayFileName = r.fileName || (r as any).originalName || 'resume.pdf';
+            const displayFilePath = r.filePath || (r as any).fileUrl || '';
 
-              <div className="admin-actions">
-                <a href={getFileUrl(r.filePath)} target="_blank" rel="noopener noreferrer" className="admin-btn-icon" title="Preview">
-                  <ExternalLink size={16} />
-                </a>
-                <a href={getFileUrl(r.filePath)} download className="admin-btn-icon" title="Download">
-                  <FileDown size={16} />
-                </a>
-                {!r.isActive && (
-                  <button className="admin-btn-icon" title="Set as Active" onClick={() => activate(r._id)}>
-                    <Star size={16} />
+            return (
+              <div key={r._id} className={`admin-resume-item ${r.isActive ? 'is-active' : ''}`}>
+                <div className="admin-resume-info">
+                  <div className="admin-resume-icon">
+                    <FileText size={22} />
+                  </div>
+                  <div className="admin-resume-details">
+                    <h4 style={{ color: '#ffffff', fontSize: '1rem', fontWeight: 700, display: 'flex', alignItems: 'center', gap: 10 }}>
+                      {displayVersion} {r.isActive && <span className="admin-badge active">Active</span>}
+                    </h4>
+                    <p style={{ color: '#9ca3af', fontSize: '0.85rem', marginTop: 4 }}>
+                      {displayFileName} • {formatDate(r.createdAt)}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="admin-actions">
+                  <a href={getFileUrl(displayFilePath)} target="_blank" rel="noopener noreferrer" className="admin-btn-icon" title="Preview">
+                    <ExternalLink size={16} />
+                  </a>
+                  <a href={getFileUrl(displayFilePath)} download className="admin-btn-icon" title="Download">
+                    <FileDown size={16} />
+                  </a>
+                  {!r.isActive && (
+                    <button className="admin-btn-icon" title="Set as Active" onClick={() => activate(r._id)}>
+                      <Star size={16} />
+                    </button>
+                  )}
+                  <button className="admin-btn-icon danger" title="Delete" onClick={() => setDeleteId(r._id)}>
+                    <Trash2 size={16} />
                   </button>
-                )}
-                <button className="admin-btn-icon danger" title="Delete" onClick={() => setDeleteId(r._id)}>
-                  <Trash2 size={16} />
-                </button>
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         {resumes.length === 0 && (
